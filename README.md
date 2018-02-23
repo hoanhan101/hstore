@@ -1,5 +1,23 @@
 # hraft
 
+
+## Idea
+
+### Routing/Service Discovery
+- Chord (use DHT to store key/value)
+- Kademlia
+- DNS
+
+### Consensus Protocol
+- Paxos
+- Raft
+
+### Key/value store
+- Memory
+- Version of key (linked link?)
+- Redis
+
+
 ## Usage
 
 ### CLI
@@ -19,7 +37,6 @@ Arguments | Description
 `-r client -c write -h <host> -k <key> -v <value>` | Write a value to a key in a node
 `-r client -c update -h <host> -k <key> -v <value>` | Update a value for a key in a node
 `-r client -c delete -h <host> -k <key>` | Delete a key in a node
-
 
 ### APIs
 
