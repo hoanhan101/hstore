@@ -14,22 +14,22 @@ Arguments | Description
 `-r server -c kill -h <host>` | Kill a node 
 `-r server -c stop -h <host>` | Stop a node 
 `-r server -c restart -h <host>` | Restart a node 
-`-r client -c read -h <host>` | Get all keys/values
-`-r client -c read -h <host> -k <key> -v <value>` | Read a key/value for a given host
-`-r client -c write -h <host> -k <key> -v <value>` | Write a key/value for a given host
-`-r client -c update -h <host> -k <key> -v <value>` | Update a key/value for a given host
-`-r client -c delete -h <host> -k <key> -v <value>` | Delete a key/value for a given host
+`-r client -c read -h <host>` | Get all keys and values
+`-r client -c read -h <host> -k <key>` | Read a value for a given key in a node
+`-r client -c write -h <host> -k <key> -v <value>` | Write a value to a key in a node
+`-r client -c update -h <host> -k <key> -v <value>` | Update a value for a key in a node
+`-r client -c delete -h <host> -k <key>` | Delete a key in a node
 
 
 ### APIs
 
 Endpoint | Description
 -- | --
-`/read` | Read all keys/values
-`/read/<key>` | Read a key value for a given host
-`/write` | Write a key value for a given host
-`/update` | Update a key value for a given host
-`/delete/<key>` | Delete a key value for a given host
+`/read` | Read all keys and values
+`/read/<key>` | Read a value for a given key in a node
+`/write` | Write a value to a key in a node
+`/update` | Update a value for a key in a node
+`/delete/<key>` | Delete a key in a node
 
 
 ## Testing
