@@ -1,10 +1,10 @@
 # hstore
 
 
-## Idea
+## Possible ideas
 
 ### Routing/Service Discovery
-- Chord (use DHT to store key/value)
+- Chord
 - Kademlia
 - DNS
 
@@ -13,6 +13,7 @@
 - Raft
 
 ### Key/value store
+- Distributed Hash Table
 - Memory
 - Version of key (linked link?)
 - Redis
