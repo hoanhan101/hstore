@@ -22,7 +22,17 @@
 
 ### CLI
 
-`python3 mgmt.py <ARGUMENTS>` where `ARGUMENTS` are defined below:
+```
+Usage: python3 mgmt.py -r <role> -c <command> [-h <host>] [-k] [-v]
+Options:
+      -r                Role to be defined.
+      -c                Command to be executed.
+      -h                Host name, including address and port.
+      -k                Key to be stored.
+      -v                Value corresponding to the key.
+```
+
+Here are the lists of arguments with descriptions:
 
 Arguments | Description
 -- | --
