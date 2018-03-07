@@ -3,9 +3,11 @@
 
 ## Introduction
 
-A distributed key-value store is a computer network where information is
-stored on more than one node, often in a replicated fashion. Examples of
-existing systems are [Apache Cassandra](http://cassandra.apache.org/), 
+By [Wikipedia](https://en.wikipedia.org/wiki/Distributed_data_store),
+a distributed key-value store is a computer network where information is
+stored on more than one node, often in a replicated fashion.
+Examples of existing systems are 
+[Apache Cassandra](http://cassandra.apache.org/), 
 [Google's Bigtable](https://cloud.google.com/bigtable/), 
 [Amazon's Dynamo](https://aws.amazon.com/dynamodb/),
 [MongoDB](https://www.mongodb.com/), [etcd](https://coreos.com/etcd/).
