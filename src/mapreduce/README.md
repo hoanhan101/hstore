@@ -1,6 +1,7 @@
 # mapreduce
 
 ## Flow of executions
+
 - Master starts and [RPC server](master_rpc.go) and wait for workers to 
   [register](master.go).
 - As task become available, [`schedule()`](schedule.go) decides how to assign
@@ -29,3 +30,13 @@
   `nReduce` files produced by the previous step into a single output.
 - The master sends a Shutdown RPC to each of its workers, and then shuts down
   its own RPC server.
+
+## Testing
+
+```
+$ cd hstore
+$ export "GOPATH=$PWD" 
+$ cd "$GOPATH/src/mapreduce"
+$ go test -run Sequential
+
+```
