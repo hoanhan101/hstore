@@ -18,15 +18,14 @@ func doReduce(
 	nMap int, // the number of map tasks that were run ("M" in the paper)
 	reduceF func(key string, values []string) string,
 ) {
-	// Make a decoder slice with the number of map tasks.
+	// Make a slice that hold nMap number of Decoders
 	var decoders = make([]*json.Decoder, nMap)
 
-	// Read the intermediate file for each map task
+	// Open an intermediate file for each map task and give it a Decoder.
 	for i := 0; i < nMap; i++ {
 		// reduceName(jobName, m, reduceTask) yields the file name from map task m.
 		fileName := reduceName(jobName, i, reduceTask)
 
-		// Open read-only.
 		fd, err := os.OpenFile(fileName, os.O_RDONLY, 0600)
 		defer fd.Close()
 		if err != nil {
@@ -34,7 +33,6 @@ func doReduce(
 			return
 		}
 
-		// Call a decoder
 		decoders[i] = json.NewDecoder(fd)
 	}
 
