@@ -58,8 +58,9 @@ func doMap(
 		encoders[i] = json.NewEncoder(fd)
 	}
 
-	// Call ihash() on each key and mod nReduce to pick r for a key/value pair.
-	// Use that r to encode the key value content
+	// For every key-value pair of mapF output,
+	// call ihash() on each key and mod nReduce to pick the immediate file r.
+	// Use that file to encode the key value content
 	for _, kv := range kvs {
 		r := ihash(kv.Key) % nReduce
 		err = encoders[r].Encode(kv)
