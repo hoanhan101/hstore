@@ -16,12 +16,7 @@ Gutenberg](https://www.gutenberg.org/ebooks/search/%3Fsort_order%3Ddownloads).
 $ cd hstore
 $ export "GOPATH=$PWD"
 $ cd "$GOPATH/src/main"
-$ go run wc.go master sequential pg-*.txt
-$ time go run wc.go master sequential pg-*.txt
-```
-
-or
-
-```
 $ bash ./test-wc.sh
 ```
+
+This will do the test and clean up all intermediate files afterward.
