@@ -39,3 +39,10 @@ $ export "GOPATH=$PWD"
 $ cd "$GOPATH/src/mapreduce"
 $ go test -run Sequential
 ```
+
+To give more verbose output, set `debugEnabled = true` in
+[common.go](common.go), and add `-v` to the test command above.
+
+```
+$ go test -v -run Sequential
+```
