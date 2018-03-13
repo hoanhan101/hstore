@@ -2,7 +2,7 @@
 
 ## Flow of executions
 
-- Master starts and [RPC server](master_rpc.go) and wait for workers to 
+- Master starts an [RPC server](master_rpc.go) and wait for workers to 
   [register](master.go).
 - As task become available, [`schedule()`](schedule.go) decides how to assign
   those tasks to workers, and how to handle worker failures.
@@ -26,7 +26,7 @@
     each map task, and calls the reduce function for each key that appears in
     those files.
   - The reduce tasks produce `nReduce` result files.
-- The master calls [`mr.merge()`][master_splitmerge.go], which merges all the
+- The master calls [`mr.merge()`](master_splitmerge.go), which merges all the
   `nReduce` files produced by the previous step into a single output.
 - The master sends a Shutdown RPC to each of its workers, and then shuts down
   its own RPC server.
