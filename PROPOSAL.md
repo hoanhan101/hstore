@@ -256,15 +256,26 @@ Method | Endpoint | Description
 `POST` | `/update` | Update a value for a key in a node.
 `GET` | `/delete/<key>` | Delete a key in a node.
 
-### UI
-
-> Something like [etcd's playground](http://play.etcd.io/play) is nice to have
-> for better visualization.
-
 ## Testing
 
-> **TODO:** There should be automated tests for the system.
+> **Idea:** Unit test, integration test, end-to-end test 
 
 > Other than unit test, integration test (if needed), end to end test (if
 > needed), how to introduce failure injections/exercises for the system,
 > exploring its behavior in the face of crashes and network partitioning?
+
+> If the system fails in such a way that it can not function properly anymore,
+  how would I recover/bring everything back up gracefully?
+
+## Report
+
+> **Idea:** A dashboard and a write-up paper with discussion.
+
+> Gather data and do different types of analysis for the system here
+
+### UI
+
+> **Idea:** A interactive webpage.
+
+> Something like [etcd's playground](http://play.etcd.io/play) is nice to have
+> for better visualization.
