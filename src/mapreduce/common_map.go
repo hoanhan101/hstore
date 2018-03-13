@@ -32,7 +32,7 @@ func doMap(
 	}
 
 	// Call mapF function for that file's content.
-    // Need to convert data to string because returned data is []uint8
+	// Need to convert data to string because returned data is []uint8
 	kvs := mapF(inputFile, string(data))
 
 	// Do the partition mapF's output into nReduce intermediate files.
@@ -59,7 +59,7 @@ func doMap(
 	}
 
 	// Call ihash() on each key and mod nReduce to pick r for a key/value pair.
-    // Use that r to encode the key value content
+	// Use that r to encode the key value content
 	for _, kv := range kvs {
 		r := ihash(kv.Key) % nReduce
 		err = encoders[r].Encode(kv)
