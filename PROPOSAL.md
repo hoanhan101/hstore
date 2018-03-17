@@ -82,7 +82,8 @@ a service discovery's behavior that I want.
 
 > **TODO:** Spend more time looking at HashiCorp's Consul documentation.
 
-### Flow
+
+## Flow
 
 > There should be some images in this section for the reader to visualize the
 > system easily. It also helps forming the flow of the system. I don't have one
@@ -94,6 +95,34 @@ algorithm right in the first place is the most important job.
 As long as I have all the nodes perform resiliently using the protocol, 
 building a key-value store on top seems much more natural.
 In other word, Raft does most of the heavy lifting for the system.
+
+### Step by step
+
+- I first start with a seed node as a server.
+- I use other node to join the seed node or I can choose to join other node
+  that are available in the system if I know its host. However, if I am able to
+  implement the service discovery feature, I just need to tell it to `join` 
+  without explicitly specifying the host. It automatically know how to route 
+  to the right cluster. 
+
+  > I think this is how a service discovery should work. However I am not sure.
+
+- When there are 3 nodes, leader election will occur. One is the leader, the
+  rest are followers.
+- Using the client machine, I can read, write, update or delete key-values in any
+  of these nodes.
+- The key-values should be replicated among themselves, no matter where I put
+  them. If I put a key-value pair in the master node then it will eventually
+  propagated to other nodes. However, if I put a key-value pair in the
+  non-master node, it should redirect the request to the master and do the
+  consensus checking there. 
+
+  > In this situation, is it better to put a load balancer in front of
+  > these non-master nodes?
+
+- If I choose to stop a node or multiple nodes, the system must still work.
+- If I stop the master, it will start the leader election again if and only if
+  the quorum size is big enough. Everything should behave the same way.
 
 
 ## Timeline
@@ -216,34 +245,6 @@ Commands | Description
 `hstore client update -h <host> -k <key> -v <value>` | Update a value for a key for a given host.
 `hstore client delete -h <host> -k <key>` | Delete a key for a given host.
 
-#### Steps
-
-- I first start with a seed node as a server.
-- I use other node to join the seed node or I can choose to join other node
-  that are available in the system if I know its host. However, if I am able to
-  implement the service discovery feature, I just need to tell it to `join` 
-  without explicitly specifying the host. It automatically know how to route 
-  to the right cluster. 
-
-  > I think this is how a service discovery should work. However I am not sure.
-
-- When there are 3 nodes, leader election will occur. One is the leader, the
-  rest are followers.
-- Using the client machine, I can read, write, update or delete key-values in any
-  of these nodes.
-- The key-values should be replicated among themselves, no matter where I put
-  them. If I put a key-value pair in the master node then it will eventually
-  propagated to other nodes. However, if I put a key-value pair in the
-  non-master node, it should redirect the request to the master and do the
-  consensus checking there. 
-
-  > In this situation, is it better to put a load balancer in front of
-  > these non-master nodes?
-
-- If I choose to stop a node or multiple nodes, the system must still work.
-- If I stop the master, it will start the leader election again if and only if
-  the quorum size is big enough. Everything should behave the same way.
-
 ### APIs
 
 List of exposed APIs for each node.
@@ -256,6 +257,7 @@ Method | Endpoint | Description
 `POST` | `/update` | Update a value for a key in a node.
 `GET` | `/delete/<key>` | Delete a key in a node.
 
+
 ## Testing
 
 > **Idea:** Unit test, integration test, end-to-end test 
@@ -267,13 +269,15 @@ Method | Endpoint | Description
 > If the system fails in such a way that it can not function properly anymore,
   how would I recover/bring everything back up gracefully?
 
+
 ## Report
 
 > **Idea:** A dashboard and a write-up paper with discussion.
 
 > Gather data and do different types of analysis for the system here
 
-### UI
+
+## UI
 
 > **Idea:** A interactive webpage.
 
