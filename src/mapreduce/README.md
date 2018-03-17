@@ -30,20 +30,3 @@
   `nReduce` files produced by the previous step into a single output.
 - The master sends a Shutdown RPC to each of its workers, and then shuts down
   its own RPC server.
-
-## Testing
-
-```
-$ cd hstore
-$ export "GOPATH=$PWD" 
-$ cd "$GOPATH/src/mapreduce"
-$ go test -run Sequential
-$ go test -run TestParallel
-```
-
-To give more verbose output, set `debugEnabled = true` in
-[common.go](common.go), and add `-v` to the test command above. For example:
-
-```
-$ go test -v -run TestParallel
-```

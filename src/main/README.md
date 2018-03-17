@@ -9,14 +9,3 @@ determined by [unicode.IsLetter](https://golang.org/pkg/unicode/#IsLetter).
 There are some input files with pathnames of the form `pg-*.txt`,
 downloaded from [Project 
 Gutenberg](https://www.gutenberg.org/ebooks/search/%3Fsort_order%3Ddownloads).
-
-### Testing
-
-```
-$ cd hstore
-$ export "GOPATH=$PWD"
-$ cd "$GOPATH/src/main"
-$ bash ./test-wc.sh
-```
-
-This will do the test and clean up all intermediate files afterward.
