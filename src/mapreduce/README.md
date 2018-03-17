@@ -1,4 +1,4 @@
-# mapreduce
+# mapt -run TestParalleleduce
 
 ## Flow of executions
 
@@ -38,11 +38,12 @@ $ cd hstore
 $ export "GOPATH=$PWD" 
 $ cd "$GOPATH/src/mapreduce"
 $ go test -run Sequential
+$ go test -run TestParallel
 ```
 
 To give more verbose output, set `debugEnabled = true` in
-[common.go](common.go), and add `-v` to the test command above.
+[common.go](common.go), and add `-v` to the test command above. For example:
 
 ```
-$ go test -v -run Sequential
+$ go test -v -run TestParallel
 ```
