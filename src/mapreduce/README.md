@@ -1,6 +1,6 @@
-# mapt -run TestParalleleduce
+# mapreduce
 
-## Flow of executions
+## Flow
 
 - Master starts an [RPC server](master_rpc.go) and wait for workers to 
   [register](master.go).
