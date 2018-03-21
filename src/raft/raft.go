@@ -17,8 +17,10 @@ package raft
 //   in the same server.
 //
 
-import "sync"
-import "labrpc"
+import (
+    "sync"
+    "labrpc"
+)
 
 // import "bytes"
 // import "labgob"
@@ -42,6 +44,11 @@ type ApplyMsg struct {
 	CommandIndex int
 }
 
+type LogEntry struct {
+    Term    int
+    Command interface{}
+}
+
 //
 // A Go object implementing a single Raft peer.
 //
@@ -51,16 +58,27 @@ type Raft struct {
 	persister *Persister          // Object to hold this peer's persisted state
 	me        int                 // this peer's index into peers[]
 
-	// Your data here (2A, 2B, 2C).
-	// Look at the paper's Figure 2 for a description of what
-	// state a Raft server must maintain.
+    isLeader  bool
 
+    // Persistent state on all servers
+    // Update on stable storage before responding to RPCs
+    currentTerm int
+    votedFor    int
+    log         []LogEntry
+
+    // Volatile state on all servers
+    commitIndex int
+    lastApplied int
+
+    // Volatile state on leaders
+    // Reinitialized after election
+    nextIndex   []int
+    matchIndex  []int
 }
 
 // return currentTerm and whether this server
 // believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
-
 	var term int
 	var isleader bool
 	// Your code here (2A).
