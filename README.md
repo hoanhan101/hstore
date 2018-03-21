@@ -18,6 +18,22 @@ Assume that user set the `GOPATH` correctly, one can follow these instructions
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
 
+### raft
+
+```
+$ cd hstore
+$ export "GOPATH=$PWD" 
+$ cd "$GOPATH/src/raft"
+$ go test
+```
+
+This will run all the test for Raft. If you want to test the program
+separately, then substitute the section and run the test accordingly.
+
+```
+go test -run 2A
+```
+
 ### MapReduce library
 
 ```
