@@ -29,6 +29,7 @@ $ go test
 
 This will run all the test for Raft. If you want to test the program
 separately, then substitute the section and run the test accordingly.
+For example:
 
 ```
 go test -run 2A
