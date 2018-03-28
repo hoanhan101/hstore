@@ -1,25 +1,29 @@
 package raft
 
 //
-// this is an outline of the API that raft must expose to
+// This is an outline of the API that raft must expose to
 // the service (or tester). see comments below for
 // each of these functions for more details.
 //
 // rf = Make(...)
-//   create a new Raft server.
+//   Create a new Raft server.
 // rf.Start(command interface{}) (index, term, isleader)
-//   start agreement on a new log entry
+//   Start agreement on a new log entry
 // rf.GetState() (term, isLeader)
-//   ask a Raft for its current term, and whether it thinks it is leader
+//   Ask a Raft for its current term, and whether it thinks it is leader
 // ApplyMsg
-//   each time a new entry is committed to the log, each Raft peer
+//   Each time a new entry is committed to the log, each Raft peer
 //   should send an ApplyMsg to the service (or tester)
 //   in the same server.
+//
+// Ref: https://github.com/xingdl2007/6.824-2017/tree/master/src/raft
 //
 
 import (
     "sync"
     "labrpc"
+    "time"
+    "math/rand"
 )
 
 // import "bytes"
@@ -28,13 +32,13 @@ import (
 
 
 //
-// as each Raft peer becomes aware that successive log entries are
+// As each Raft peer becomes aware that successive log entries are
 // committed, the peer should send an ApplyMsg to the service (or
 // tester) on the same server, via the applyCh passed to Make(). set
 // CommandValid to true to indicate that the ApplyMsg contains a newly
 // committed log entry.
 //
-// in Lab 3 you'll want to send other kinds of messages (e.g.,
+// In Lab 3 you'll want to send other kinds of messages (e.g.,
 // snapshots) on the applyCh; at that point you can add fields to
 // ApplyMsg, but set CommandValid to false for these other uses.
 //
@@ -44,6 +48,9 @@ type ApplyMsg struct {
 	CommandIndex int
 }
 
+//
+// Log Entry
+//
 type LogEntry struct {
     Term    int
     Command interface{}
@@ -58,13 +65,21 @@ type Raft struct {
 	persister *Persister          // Object to hold this peer's persisted state
 	me        int                 // this peer's index into peers[]
 
+    // Election Term
     isLeader  bool
+
+    resetTimer      chan struct{}
+    electionTimer   *time.Timer
+    electionTimeout time.Duration // 500 ~ 800 ms
+
+    // Heartbeat
+    heartbeatInterval   time.Duration   // 150 ms
 
     // Persistent state on all servers
     // Update on stable storage before responding to RPCs
     currentTerm int
     votedFor    int
-    log         []LogEntry
+    logs        []LogEntry
 
     // Volatile state on all servers
     commitIndex int
@@ -76,20 +91,28 @@ type Raft struct {
     matchIndex  []int
 }
 
-// return currentTerm and whether this server
+//
+// Return currentTerm and whether this server
 // believes it is the leader.
+//
 func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isleader bool
-	// Your code here (2A).
+
+    rf.mu.Lock()
+    defer rf.mu.Unlock()
+
+    term = rf.currentTerm
+    isleader = rf.isLeader
+
 	return term, isleader
 }
 
 
 //
-// save Raft's persistent state to stable storage,
+// Save Raft's persistent state to stable storage,
 // where it can later be retrieved after a crash and restart.
-// see paper's Figure 2 for a description of what should be persistent.
+// See paper's Figure 2 for a description of what should be persistent.
 //
 func (rf *Raft) persist() {
 	// Your code here (2C).
@@ -102,9 +125,8 @@ func (rf *Raft) persist() {
 	// rf.persister.SaveRaftState(data)
 }
 
-
 //
-// restore previously persisted state.
+// Restore previously persisted state.
 //
 func (rf *Raft) readPersist(data []byte) {
 	if data == nil || len(data) < 1 { // bootstrap without any state?
@@ -125,39 +147,93 @@ func (rf *Raft) readPersist(data []byte) {
 	// }
 }
 
-
-
-
 //
-// example RequestVote RPC arguments structure.
-// field names must start with capital letters!
+// RequestVote RPC arguments structure.
+// Field names must start with capital letters!
 //
 type RequestVoteArgs struct {
-	// Your data here (2A, 2B).
+    Term            int // candidate's term
+    CandidateID     int // candidate's requesting vote
+    LastLogIndex    int // index of candidate's last log entry
+    LastLogTerm     int // term of candidate's last log entry
 }
 
 //
-// example RequestVote RPC reply structure.
-// field names must start with capital letters!
+// Initialize RequestVote RPC arguments
+//
+func (rf *Raft) initRequestVoteArgs(args *RequestVoteArgs) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	// turn to candidate and vote to itself
+	rf.votedFor = rf.me
+	rf.currentTerm += 1
+
+	args.Term = rf.currentTerm
+	args.CandidateID = rf.me
+	args.LastLogIndex = len(rf.logs) - 1
+	args.LastLogTerm = rf.logs[args.LastLogIndex].Term
+}
+
+//
+// RequestVote RPC reply structure.
+// Field names must start with capital letters!
 //
 type RequestVoteReply struct {
-	// Your data here (2A).
+    Term            int  // currentTerm, for candidate to update itself
+    VoteGranted     bool // true means candidate received vote
 }
 
 //
-// example RequestVote RPC handler.
+// RequestVote RPC handler.
 //
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).
+    rf.mu.Lock()
+    defer rf.mu.Unlock()
+
+    // TODO: Revisit section 5.1
+    // If one's current term is smaller than other's,
+    // then update its current term to the larget value.
+    // Otherwise, its term is out of date. Revert to follower state.
+    if args.Term < rf.currentTerm {
+        reply.Term = rf.currentTerm
+        reply.VoteGranted = false
+    } else {
+        // Convert to follower
+        if args.Term > rf.currentTerm {
+            rf.currentTerm = args.Term
+            rf.votedFor = -1
+        }
+
+        // If voteFor is null or candidateId (candidate itself),
+        // and candidate's log is at least up-to-date as receiver's log
+        // then grant vote
+        if (rf.votedFor == -1 || rf.votedFor == args.CandidateID) {
+            lastLogIndex := len(rf.logs) - 1
+            lastLogTerm := rf.logs[lastLogIndex].Term
+
+            if (args.LastLogIndex == lastLogTerm && args.LastLogIndex >= lastLogIndex) ||
+                args.LastLogTerm > lastLogTerm {
+                    // TODO: Revisit section 5.2 and 5.4
+                    rf.isLeader = false
+                    rf.votedFor = args.CandidateID
+                    reply.VoteGranted = true
+
+                    // TODO: Explain why
+                    rf.resetTimer <- struct{}{}
+                }
+        }
+    }
 }
 
 //
-// example code to send a RequestVote RPC to a server.
-// server is the index of the target server in rf.peers[].
-// expects RPC arguments in args.
-// fills in *reply with RPC reply, so caller should
+// Example code to send a RequestVote RPC to a server.
+// Server is the index of the target server in rf.peers[].
+// Expects RPC arguments in args.
+// Fills in *reply with RPC reply, so caller should
 // pass &reply.
-// the types of the args and reply passed to Call() must be
+// The types of the args and reply passed to Call() must be
 // the same as the types of the arguments declared in the
 // handler function (including whether they are pointers).
 //
@@ -173,9 +249,9 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 // handler function on the server side does not return.  Thus there
 // is no need to implement your own timeouts around Call().
 //
-// look at the comments in ../labrpc/labrpc.go for more details.
+// Look at the comments in ../labrpc/labrpc.go for more details.
 //
-// if you're having trouble getting RPC to work, check that you've
+// If you're having trouble getting RPC to work, check that you've
 // capitalized all field names in structs passed over RPC, and
 // that the caller passes the address of the reply struct with &, not
 // the struct itself.
@@ -185,6 +261,80 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	return ok
 }
 
+//
+// AppendEntries RPC arguments structure
+// Invoked by leader to replicate log entries (section 5.3);
+// also used as heartbeat (section 5.2)
+//
+type AppendEntriesArgs struct {
+    Term            int         // leader's term
+    LeaderID        int         // so follower can redirect clients
+    PrevLogIndex    int         // index of log entry immediately preceding new ones
+    PrevLogTerm     int         // term of prevLogIndex entry
+    Entries         []LogEntry  // log entries to store (empty for heartbeat; may send more than one for eddiciency)
+    LeaderCommit    int         // leader's commitIndex
+}
+
+//
+// Initialize AppendEntries RPC arguments
+//
+func (rf *Raft) initAppendEntriesArgs(args *AppendEntriesArgs, heartbeat bool) {
+    rf.mu.Lock()
+    defer rf.mu.Unlock()
+
+    args.Term = rf.currentTerm
+    args.LeaderID = rf.me
+    args.PrevLogIndex = len(rf.logs) - 1
+    args.PrevLogTerm = rf.logs[args.PrevLogIndex].Term
+    args.LeaderCommit = rf.commitIndex
+
+    if heartbeat {
+        args.Entries = nil
+    }
+}
+
+//
+// AppendEntries RPC reply structure
+//
+type AppendEntriesReply struct {
+    Term        int     // currentTerm, for leader to update itself
+    Success     bool    // true if follower contained entry matching prevLogIndex and prevLogTerm
+}
+
+//
+// AppendEntries RPC Handler
+//
+func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+    rf.mu.Lock()
+    defer rf.mu.Unlock()
+
+    // If heartbeat message, suppress leader election
+    if len(args.Entries) == 0 {
+        if args.Term < rf.currentTerm {
+            reply.Term = rf.currentTerm
+            reply.Success = false
+        } else {
+            reply.Success = true
+
+            // If encounter a leader, change to follower
+            if rf.isLeader {
+                rf.isLeader = false
+            }
+
+            // Reset election timer
+            rf.resetTimer <- struct{}{}
+        }
+    }
+}
+
+//
+// Send a AppendEntries RPC to a server
+// Model after sendRequestVote
+//
+func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
+	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+	return ok
+}
 
 //
 // the service using Raft (e.g. a k/v server) wants to start
@@ -238,11 +388,166 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.persister = persister
 	rf.me = me
 
-	// Your initialization code here (2A, 2B, 2C).
+    rf.isLeader = false
+    rf.votedFor = -1
 
-	// initialize from state persisted before a crash
+    // Reinitialzie after election
+    rf.nextIndex = make([]int, len(peers))
+    rf.matchIndex = make([]int, len(peers))
+
+    // Start with logs of length 1
+    rf.logs = make([]LogEntry, 1)
+
+    // matchIndex is initialized to leader's lastLogIndex + 1
+    for i := 0; i < len(peers); i++ {
+        rf.matchIndex[i] = len(rf.logs)
+    }
+
+    // Set election timeout to 400-800 ms
+    rf.electionTimeout = time.Millisecond * (400 + time.Duration(rand.Int63()%400))
+    rf.electionTimer = time.NewTimer(rf.electionTimeout)
+    rf.resetTimer = make(chan struct{})
+
+    // Set heartbeat interval to 100 ms
+    rf.heartbeatInterval = time.Millisecond * 100
+
+    // Debugging message
+    DPrintf("Peer %d : Election(%s) Heartbeat(%s)\n", rf.me, rf.electionTimeout, rf.heartbeatInterval)
+
+	// Initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
+    // Kick off election
+    go rf.electionDaemon()
 
 	return rf
+}
+
+//
+// Election Daemon never exit, but can be reset
+// TODO: Why?
+//
+func (rf *Raft) electionDaemon() {
+    for {
+        select {
+        case <-rf.resetTimer:
+            rf.electionTimer.Reset(rf.electionTimeout)
+        case <-rf.electionTimer.C:
+            // TODO: What does this do? What does C mean?
+            rf.electionTimer.Reset(rf.electionTimeout)
+            go rf.canvassVotes()
+        }
+    }
+}
+
+//
+// CanvassVotes issues RequestVote RPC
+// TODO: Why? Where is it in the paper?
+//
+func (rf *Raft) canvassVotes() {
+    var voteArgs RequestVoteArgs
+    rf.initRequestVoteArgs(&voteArgs)
+
+    // TODO: Why a channel of RequestVoteReply?
+    // Use buffered channel to avoid goroutine leak
+    peers := len(rf.peers)
+    replies := make(chan RequestVoteReply, peers)
+
+    // TODO: What is it?
+    var wg sync.WaitGroup
+    for i := 0; i < peers; i++ {
+        if i == rf.me {
+            // Reset itself electionTimer
+            rf.resetTimer <- struct{}{}
+        } else {
+            wg.Add(1)
+            go func(n int) {
+                defer wg.Done()
+
+                var reply RequestVoteReply
+                if rf.sendRequestVote(n, &voteArgs, &reply) {
+                    replies <- reply
+                }
+            }(i)
+        }
+    }
+
+    // Remember to close the channel
+    go func() {
+        wg.Wait()
+        close(replies)
+    }()
+
+    // TODO: What is it?
+    var votes = 1
+    for reply := range replies {
+        if reply.VoteGranted == true {
+            // Increase votes by 1, then if they are the majority,
+            // it becomes a leader
+            if votes++; votes > peers/2 {
+                rf.mu.Lock()
+                rf.isLeader = true
+                rf.mu.Unlock()
+                
+                // Start heartbeat daemon
+                go rf.heartbeatDaemon()
+                return
+            }
+        } else if reply.Term > voteArgs.Term {
+            // TODO: Why need to check this?
+            rf.mu.Lock()
+            rf.isLeader = false
+            rf.votedFor = -1    // return to follower
+            rf.mu.Unlock()
+            return
+        }
+    }
+}
+
+//
+// Heartbeat Daemon will exist when peer is not a leader anymore
+//
+func (rf *Raft) heartbeatDaemon() {
+    for {
+        if _, isLeader := rf.GetState(); isLeader {
+            for i := 0; i < len(rf.peers); i++ {
+                if i == rf.me {
+                    // Reset itself electionTimer
+                    rf.resetTimer <- struct{}{}
+                } else {
+                    go rf.heartbeat(i)
+                }
+            }
+            time.Sleep(rf.heartbeatInterval)
+        } else {
+            break
+        }
+    }
+}
+
+//
+// Process replay of AppendEntries including heartbeat
+// TODO: What is the different between heartbeat and heartbeatDaemon
+//
+func (rf *Raft) heartbeat(n int) {
+    var args AppendEntriesArgs
+    rf.initAppendEntriesArgs(&args, true)
+
+    var reply AppendEntriesReply
+    if rf.sendAppendEntries(n, &args, &reply) {
+        // TODO: Retry until it succeed?
+        if !reply.Success {
+            rf.mu.Lock()
+            defer rf.mu.Unlock()
+
+            // If we found a new leader, step down to be a follower
+            if reply.Term > rf.currentTerm {
+                rf.currentTerm = reply.Term
+                rf.isLeader = false
+                rf.votedFor = -1
+            } else {
+                // TODO: Send log entry from leader
+            }
+        }
+    }
 }
