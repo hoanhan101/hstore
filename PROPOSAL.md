@@ -283,3 +283,7 @@ Method | Endpoint | Description
 
 > Something like [etcd's playground](http://play.etcd.io/play) is nice to have
 > for better visualization.
+
+## Future features
+
+- Full text search like Elasticsearch
