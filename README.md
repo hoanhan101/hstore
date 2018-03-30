@@ -49,7 +49,8 @@ $ go test -run TestParallel
 ```
 
 To give more verbose output, set `debugEnabled = true` in
-[common.go](common.go), and add `-v` to the test command above. For example:
+[common.go](src/mapreduce/common.go), and add `-v` to the test command above. 
+For example:
 
 ```
 $ go test -v -run TestParallel
