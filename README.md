@@ -27,13 +27,16 @@ $ cd "$GOPATH/src/raft"
 $ go test
 ```
 
-This will run all the test for Raft. If you want to test the program
+This will run all the test for Raft. If one want to test the program
 separately, then substitute the section and run the test accordingly.
-For example:
+For example, in order to test leader election and heartbeats, one can run `go
+test -run 2A` since
 
-```
-go test -run 2A
-```
+> The goal for Part 2A is for a single leader to be elected, for the leader to
+> remain the leader if there are no failures, and for a new leader to take over
+> if the old leader fails or if packets to/from the old leader are lost.
+
+Part 2B and 2C are work-in-progress.
 
 ### MapReduce library
 
