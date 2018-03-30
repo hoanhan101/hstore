@@ -1,6 +1,8 @@
 package raft
 
 //
+// Reference: https://github.com/xingdl2007/6.824-2017/tree/master/src/raft
+//
 // This is an outline of the API that raft must expose to
 // the service (or tester). see comments below for
 // each of these functions for more details.
@@ -15,8 +17,6 @@ package raft
 //   Each time a new entry is committed to the log, each Raft peer
 //   should send an ApplyMsg to the service (or tester)
 //   in the same server.
-//
-// Ref: https://github.com/xingdl2007/6.824-2017/tree/master/src/raft
 //
 
 import (
@@ -162,7 +162,7 @@ func (rf *Raft) initRequestVoteArgs(args *RequestVoteArgs) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
-	// turn to candidate and vote to itself
+	// Turn to candidate and vote to itself
 	rf.votedFor = rf.me
 	rf.currentTerm += 1
 
@@ -189,7 +189,6 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
-	// TODO: Revisit section 5.1
 	// If one's current term is smaller than other's,
 	// then update its current term to the larget value.
 	// Otherwise, its term is out of date. Revert to follower state.
@@ -212,12 +211,11 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 
 			if (args.LastLogIndex == lastLogTerm && args.LastLogIndex >= lastLogIndex) ||
 				args.LastLogTerm > lastLogTerm {
-				// TODO: Revisit section 5.2 and 5.4
 				rf.isLeader = false
 				rf.votedFor = args.CandidateID
 				reply.VoteGranted = true
 
-				// TODO: Explain why
+				// Reset timer after granting a vote to another peer
 				rf.resetTimer <- struct{}{}
 			}
 		}
@@ -334,16 +332,16 @@ func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *Ap
 }
 
 //
-// the service using Raft (e.g. a k/v server) wants to start
-// agreement on the next command to be appended to Raft's log. if this
-// server isn't the leader, returns false. otherwise start the
-// agreement and return immediately. there is no guarantee that this
+// The service using Raft (e.g. a k/v server) wants to start
+// agreement on the next command to be appended to Raft's log. If this
+// server isn't the leader, returns false. Otherwise start the
+// agreement and return immediately. There is no guarantee that this
 // command will ever be committed to the Raft log, since the leader
 // may fail or lose an election.
 //
-// the first return value is the index that the command will appear at
-// if it's ever committed. the second return value is the current
-// term. the third return value is true if this server believes it is
+// The first return value is the index that the command will appear at
+// if it's ever committed. The second return value is the current
+// term. The third return value is true if this server believes it is
 // the leader.
 //
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
@@ -357,8 +355,8 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 }
 
 //
-// the tester calls Kill() when a Raft instance won't
-// be needed again. you are not required to do anything
+// The tester calls Kill() when a Raft instance won't
+// be needed again. You are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
 //
@@ -367,10 +365,10 @@ func (rf *Raft) Kill() {
 }
 
 //
-// the service or tester wants to create a Raft server. the ports
+// The service or tester wants to create a Raft server. the ports
 // of all the Raft servers (including this one) are in peers[]. this
-// server's port is peers[me]. all the servers' peers[] arrays
-// have the same order. persister is a place for this server to
+// server's port is peers[me]. All the servers' peers[] arrays
+// have the same order. Persister is a place for this server to
 // save its persistent state, and also initially holds the most
 // recent saved state, if any. applyCh is a channel on which the
 // tester or service expects Raft to send ApplyMsg messages.
@@ -420,16 +418,16 @@ func Make(peers []*labrpc.ClientEnd, me int,
 }
 
 //
-// Election Daemon never exit, but can be reset
-// TODO: Why?
+// Election Daemon never exit, but can be reset.
+// It listens in the background and reset timer based on different cases.
 //
 func (rf *Raft) electionDaemon() {
 	for {
 		select {
 		case <-rf.resetTimer:
 			rf.electionTimer.Reset(rf.electionTimeout)
+        // When the Timer expires, the current time will be sent on C
 		case <-rf.electionTimer.C:
-			// TODO: What does this do? What does C mean?
 			rf.electionTimer.Reset(rf.electionTimeout)
 			go rf.canvassVotes()
 		}
@@ -437,19 +435,19 @@ func (rf *Raft) electionDaemon() {
 }
 
 //
-// CanvassVotes issues RequestVote RPC
-// TODO: Why? Where is it in the paper?
+// CanvassVotes issues RequestVote RPC - Election logic
 //
 func (rf *Raft) canvassVotes() {
 	var voteArgs RequestVoteArgs
 	rf.initRequestVoteArgs(&voteArgs)
 
-	// TODO: Why a channel of RequestVoteReply?
 	// Use buffered channel to avoid goroutine leak
 	peers := len(rf.peers)
+
+	// Make channel of RequestVoteReply?
 	replies := make(chan RequestVoteReply, peers)
 
-	// TODO: What is it?
+    // Send RequestVoteRPC to all other servers
 	var wg sync.WaitGroup
 	for i := 0; i < peers; i++ {
 		if i == rf.me {
@@ -474,26 +472,24 @@ func (rf *Raft) canvassVotes() {
 		close(replies)
 	}()
 
-	// TODO: What is it?
 	var votes = 1
 	for reply := range replies {
 		if reply.VoteGranted == true {
-			// Increase votes by 1, then if they are the majority,
-			// it becomes a leader
+            // If receives votes from majority of servers, becomes a leader
 			if votes++; votes > peers/2 {
 				rf.mu.Lock()
 				rf.isLeader = true
 				rf.mu.Unlock()
 
-				// Start heartbeat daemon
+                // Send AppendEntries heartbeats to all servers
 				go rf.heartbeatDaemon()
 				return
 			}
+		// If we found a new leader, step down to be a follower
 		} else if reply.Term > voteArgs.Term {
-			// TODO: Why need to check this?
 			rf.mu.Lock()
 			rf.isLeader = false
-			rf.votedFor = -1 // return to follower
+			rf.votedFor = -1
 			rf.mu.Unlock()
 			return
 		}
@@ -523,7 +519,6 @@ func (rf *Raft) heartbeatDaemon() {
 
 //
 // Process replay of AppendEntries including heartbeat
-// TODO: What is the different between heartbeat and heartbeatDaemon
 //
 func (rf *Raft) heartbeat(n int) {
 	var args AppendEntriesArgs
@@ -531,7 +526,7 @@ func (rf *Raft) heartbeat(n int) {
 
 	var reply AppendEntriesReply
 	if rf.sendAppendEntries(n, &args, &reply) {
-		// TODO: Retry until it succeed?
+		// Retry until it succeed?
 		if !reply.Success {
 			rf.mu.Lock()
 			defer rf.mu.Unlock()
