@@ -426,7 +426,7 @@ func (rf *Raft) electionDaemon() {
 		select {
 		case <-rf.resetTimer:
 			rf.electionTimer.Reset(rf.electionTimeout)
-        // When the Timer expires, the current time will be sent on C
+			// When the Timer expires, the current time will be sent on C
 		case <-rf.electionTimer.C:
 			rf.electionTimer.Reset(rf.electionTimeout)
 			go rf.canvassVotes()
@@ -447,7 +447,7 @@ func (rf *Raft) canvassVotes() {
 	// Make channel of RequestVoteReply?
 	replies := make(chan RequestVoteReply, peers)
 
-    // Send RequestVoteRPC to all other servers
+	// Send RequestVoteRPC to all other servers
 	var wg sync.WaitGroup
 	for i := 0; i < peers; i++ {
 		if i == rf.me {
@@ -475,17 +475,17 @@ func (rf *Raft) canvassVotes() {
 	var votes = 1
 	for reply := range replies {
 		if reply.VoteGranted == true {
-            // If receives votes from majority of servers, becomes a leader
+			// If receives votes from majority of servers, becomes a leader
 			if votes++; votes > peers/2 {
 				rf.mu.Lock()
 				rf.isLeader = true
 				rf.mu.Unlock()
 
-                // Send AppendEntries heartbeats to all servers
+				// Send AppendEntries heartbeats to all servers
 				go rf.heartbeatDaemon()
 				return
 			}
-		// If we found a new leader, step down to be a follower
+			// If we found a new leader, step down to be a follower
 		} else if reply.Term > voteArgs.Term {
 			rf.mu.Lock()
 			rf.isLeader = false
