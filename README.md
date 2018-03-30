@@ -56,7 +56,7 @@ For example:
 $ go test -v -run TestParallel
 ```
 
-### [Word Count](src/main/wg.go) using mapreduce
+### [word-count with mapreduce](src/main/wc.go)
 
 ```
 $ cd hstore
