@@ -18,7 +18,7 @@ Assume that user set the `GOPATH` correctly, one can follow these instructions
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
 
-### raft
+### [raft](src/raft)
 
 ```
 $ cd hstore
@@ -38,7 +38,7 @@ test -run 2A` since
 
 Part 2B and 2C are work-in-progress.
 
-### MapReduce library
+### [mapreduce](src/mapreduce)
 
 ```
 $ cd hstore
@@ -56,7 +56,7 @@ For example:
 $ go test -v -run TestParallel
 ```
 
-### Word Count program using MapReduce
+### [Word Count](src/main/wg.go) using mapreduce
 
 ```
 $ cd hstore
