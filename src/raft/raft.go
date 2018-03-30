@@ -103,6 +103,8 @@ func (rf *Raft) GetState() (int, bool) {
 	term = rf.currentTerm
 	isleader = rf.isLeader
 
+    // DPrintf("Peer %d - GetState(%d, %v)\n", rf.me, term, isleader)
+
 	return term, isleader
 }
 
@@ -162,14 +164,17 @@ func (rf *Raft) initRequestVoteArgs(args *RequestVoteArgs) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
-	// Turn to candidate and vote to itself
-	rf.votedFor = rf.me
+    // Increment current term
+    // Change to Candidate state and vote for itself
 	rf.currentTerm += 1
+	rf.votedFor = rf.me
 
 	args.Term = rf.currentTerm
 	args.CandidateID = rf.me
 	args.LastLogIndex = len(rf.logs) - 1
 	args.LastLogTerm = rf.logs[args.LastLogIndex].Term
+
+    // DPrintf("Peer %d - initVoteRequestArgs()\n", rf.me)
 }
 
 //
@@ -185,7 +190,6 @@ type RequestVoteReply struct {
 // RequestVote RPC handler.
 //
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
-	// Your code here (2A, 2B).
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
@@ -220,6 +224,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			}
 		}
 	}
+
+    // DPrintf("Peer %d - RequestVote()\n", rf.me)
 }
 
 //
@@ -253,6 +259,9 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 //
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
+
+    // DPrintf("Peer %d - sendRequestVote()\n", rf.me)
+
 	return ok
 }
 
@@ -286,6 +295,8 @@ func (rf *Raft) initAppendEntriesArgs(args *AppendEntriesArgs, heartbeat bool) {
 	if heartbeat {
 		args.Entries = nil
 	}
+
+    // DPrintf("Peer %d - initAppendEntriesArgs()\n", rf.me)
 }
 
 //
@@ -320,6 +331,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.resetTimer <- struct{}{}
 		}
 	}
+
+    // DPrintf("Peer %d - AppendEntriesArgs()\n", rf.me)
 }
 
 //
@@ -328,6 +341,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 //
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
+
+    // DPrintf("Peer %d - sendAppendEntriesArgs()\n", rf.me)
+
 	return ok
 }
 
@@ -365,7 +381,7 @@ func (rf *Raft) Kill() {
 }
 
 //
-// The service or tester wants to create a Raft server. the ports
+// The service or tester wants to create a Raft server. The ports
 // of all the Raft servers (including this one) are in peers[]. this
 // server's port is peers[me]. All the servers' peers[] arrays
 // have the same order. Persister is a place for this server to
@@ -406,7 +422,8 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.heartbeatInterval = time.Millisecond * 100
 
 	// Debugging message
-	DPrintf("Peer %d : Election(%s) Heartbeat(%s)\n", rf.me, rf.electionTimeout, rf.heartbeatInterval)
+    DPrintf("Peer %d - ElectionTimeout: %s, HeartbeatInterval: %s\n", 
+            rf.me, rf.electionTimeout, rf.heartbeatInterval)
 
 	// Initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
@@ -444,7 +461,7 @@ func (rf *Raft) canvassVotes() {
 	// Use buffered channel to avoid goroutine leak
 	peers := len(rf.peers)
 
-	// Make channel of RequestVoteReply?
+	// Make channel of RequestVoteReply
 	replies := make(chan RequestVoteReply, peers)
 
 	// Send RequestVoteRPC to all other servers
@@ -477,6 +494,7 @@ func (rf *Raft) canvassVotes() {
 		if reply.VoteGranted == true {
 			// If receives votes from majority of servers, becomes a leader
 			if votes++; votes > peers/2 {
+                DPrintf("Peer %d - currentTerm=%v is the leader", rf.me, rf.currentTerm)
 				rf.mu.Lock()
 				rf.isLeader = true
 				rf.mu.Unlock()
@@ -533,6 +551,8 @@ func (rf *Raft) heartbeat(n int) {
 
 			// If we found a new leader, step down to be a follower
 			if reply.Term > rf.currentTerm {
+                DPrintf("Peer %d - Since replyTerm=%v > currentTerm=%v, found a new leader\n", 
+                        rf.me, reply.Term, rf.currentTerm)
 				rf.currentTerm = reply.Term
 				rf.isLeader = false
 				rf.votedFor = -1

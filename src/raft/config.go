@@ -233,7 +233,7 @@ func (cfg *config) cleanup() {
 
 // attach server i to the net.
 func (cfg *config) connect(i int) {
-	// fmt.Printf("connect(%d)\n", i)
+	// DPrintf("Config disconnect(%d)\n", i)
 
 	cfg.connected[i] = true
 
@@ -256,7 +256,7 @@ func (cfg *config) connect(i int) {
 
 // detach server i from the net.
 func (cfg *config) disconnect(i int) {
-	// fmt.Printf("disconnect(%d)\n", i)
+	// DPrintf("Config disconnect(%d)\n", i)
 
 	cfg.connected[i] = false
 
@@ -476,7 +476,7 @@ func (cfg *config) one(cmd int, expectedServers int, retry bool) int {
 // print the Test message.
 // e.g. cfg.begin("Test (2B): RPC counts aren't too high")
 func (cfg *config) begin(description string) {
-	fmt.Printf("%s ...\n", description)
+	fmt.Printf("\n%s ...\n", description)
 	cfg.t0 = time.Now()
 	cfg.rpcs0 = cfg.rpcTotal()
 	cfg.cmds0 = 0
@@ -498,6 +498,6 @@ func (cfg *config) end() {
 		cfg.mu.Unlock()
 
 		fmt.Printf("  ... Passed --")
-		fmt.Printf("  %4.1f  %d %4d %4d\n", t, npeers, nrpc, ncmds)
+		fmt.Printf("  %4.1f  %d %4d %4d\n\n", t, npeers, nrpc, ncmds)
 	}
 }
