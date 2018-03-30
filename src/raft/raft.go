@@ -20,16 +20,14 @@ package raft
 //
 
 import (
-    "sync"
-    "labrpc"
-    "time"
-    "math/rand"
+	"labrpc"
+	"math/rand"
+	"sync"
+	"time"
 )
 
 // import "bytes"
 // import "labgob"
-
-
 
 //
 // As each Raft peer becomes aware that successive log entries are
@@ -52,8 +50,8 @@ type ApplyMsg struct {
 // Log Entry
 //
 type LogEntry struct {
-    Term    int
-    Command interface{}
+	Term    int
+	Command interface{}
 }
 
 //
@@ -65,30 +63,30 @@ type Raft struct {
 	persister *Persister          // Object to hold this peer's persisted state
 	me        int                 // this peer's index into peers[]
 
-    // Election Term
-    isLeader  bool
+	// Election Term
+	isLeader bool
 
-    resetTimer      chan struct{}
-    electionTimer   *time.Timer
-    electionTimeout time.Duration // 500 ~ 800 ms
+	resetTimer      chan struct{}
+	electionTimer   *time.Timer
+	electionTimeout time.Duration // 500 ~ 800 ms
 
-    // Heartbeat
-    heartbeatInterval   time.Duration   // 150 ms
+	// Heartbeat
+	heartbeatInterval time.Duration // 150 ms
 
-    // Persistent state on all servers
-    // Update on stable storage before responding to RPCs
-    currentTerm int
-    votedFor    int
-    logs        []LogEntry
+	// Persistent state on all servers
+	// Update on stable storage before responding to RPCs
+	currentTerm int
+	votedFor    int
+	logs        []LogEntry
 
-    // Volatile state on all servers
-    commitIndex int
-    lastApplied int
+	// Volatile state on all servers
+	commitIndex int
+	lastApplied int
 
-    // Volatile state on leaders
-    // Reinitialized after election
-    nextIndex   []int
-    matchIndex  []int
+	// Volatile state on leaders
+	// Reinitialized after election
+	nextIndex  []int
+	matchIndex []int
 }
 
 //
@@ -99,15 +97,14 @@ func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isleader bool
 
-    rf.mu.Lock()
-    defer rf.mu.Unlock()
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 
-    term = rf.currentTerm
-    isleader = rf.isLeader
+	term = rf.currentTerm
+	isleader = rf.isLeader
 
 	return term, isleader
 }
-
 
 //
 // Save Raft's persistent state to stable storage,
@@ -152,10 +149,10 @@ func (rf *Raft) readPersist(data []byte) {
 // Field names must start with capital letters!
 //
 type RequestVoteArgs struct {
-    Term            int // candidate's term
-    CandidateID     int // candidate's requesting vote
-    LastLogIndex    int // index of candidate's last log entry
-    LastLogTerm     int // term of candidate's last log entry
+	Term         int // candidate's term
+	CandidateID  int // candidate's requesting vote
+	LastLogIndex int // index of candidate's last log entry
+	LastLogTerm  int // term of candidate's last log entry
 }
 
 //
@@ -180,8 +177,8 @@ func (rf *Raft) initRequestVoteArgs(args *RequestVoteArgs) {
 // Field names must start with capital letters!
 //
 type RequestVoteReply struct {
-    Term            int  // currentTerm, for candidate to update itself
-    VoteGranted     bool // true means candidate received vote
+	Term        int  // currentTerm, for candidate to update itself
+	VoteGranted bool // true means candidate received vote
 }
 
 //
@@ -189,42 +186,42 @@ type RequestVoteReply struct {
 //
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).
-    rf.mu.Lock()
-    defer rf.mu.Unlock()
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 
-    // TODO: Revisit section 5.1
-    // If one's current term is smaller than other's,
-    // then update its current term to the larget value.
-    // Otherwise, its term is out of date. Revert to follower state.
-    if args.Term < rf.currentTerm {
-        reply.Term = rf.currentTerm
-        reply.VoteGranted = false
-    } else {
-        // Convert to follower
-        if args.Term > rf.currentTerm {
-            rf.currentTerm = args.Term
-            rf.votedFor = -1
-        }
+	// TODO: Revisit section 5.1
+	// If one's current term is smaller than other's,
+	// then update its current term to the larget value.
+	// Otherwise, its term is out of date. Revert to follower state.
+	if args.Term < rf.currentTerm {
+		reply.Term = rf.currentTerm
+		reply.VoteGranted = false
+	} else {
+		// Convert to follower
+		if args.Term > rf.currentTerm {
+			rf.currentTerm = args.Term
+			rf.votedFor = -1
+		}
 
-        // If voteFor is null or candidateId (candidate itself),
-        // and candidate's log is at least up-to-date as receiver's log
-        // then grant vote
-        if (rf.votedFor == -1 || rf.votedFor == args.CandidateID) {
-            lastLogIndex := len(rf.logs) - 1
-            lastLogTerm := rf.logs[lastLogIndex].Term
+		// If voteFor is null or candidateId (candidate itself),
+		// and candidate's log is at least up-to-date as receiver's log
+		// then grant vote
+		if rf.votedFor == -1 || rf.votedFor == args.CandidateID {
+			lastLogIndex := len(rf.logs) - 1
+			lastLogTerm := rf.logs[lastLogIndex].Term
 
-            if (args.LastLogIndex == lastLogTerm && args.LastLogIndex >= lastLogIndex) ||
-                args.LastLogTerm > lastLogTerm {
-                    // TODO: Revisit section 5.2 and 5.4
-                    rf.isLeader = false
-                    rf.votedFor = args.CandidateID
-                    reply.VoteGranted = true
+			if (args.LastLogIndex == lastLogTerm && args.LastLogIndex >= lastLogIndex) ||
+				args.LastLogTerm > lastLogTerm {
+				// TODO: Revisit section 5.2 and 5.4
+				rf.isLeader = false
+				rf.votedFor = args.CandidateID
+				reply.VoteGranted = true
 
-                    // TODO: Explain why
-                    rf.resetTimer <- struct{}{}
-                }
-        }
-    }
+				// TODO: Explain why
+				rf.resetTimer <- struct{}{}
+			}
+		}
+	}
 }
 
 //
@@ -267,64 +264,64 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 // also used as heartbeat (section 5.2)
 //
 type AppendEntriesArgs struct {
-    Term            int         // leader's term
-    LeaderID        int         // so follower can redirect clients
-    PrevLogIndex    int         // index of log entry immediately preceding new ones
-    PrevLogTerm     int         // term of prevLogIndex entry
-    Entries         []LogEntry  // log entries to store (empty for heartbeat; may send more than one for eddiciency)
-    LeaderCommit    int         // leader's commitIndex
+	Term         int        // leader's term
+	LeaderID     int        // so follower can redirect clients
+	PrevLogIndex int        // index of log entry immediately preceding new ones
+	PrevLogTerm  int        // term of prevLogIndex entry
+	Entries      []LogEntry // log entries to store (empty for heartbeat; may send more than one for eddiciency)
+	LeaderCommit int        // leader's commitIndex
 }
 
 //
 // Initialize AppendEntries RPC arguments
 //
 func (rf *Raft) initAppendEntriesArgs(args *AppendEntriesArgs, heartbeat bool) {
-    rf.mu.Lock()
-    defer rf.mu.Unlock()
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 
-    args.Term = rf.currentTerm
-    args.LeaderID = rf.me
-    args.PrevLogIndex = len(rf.logs) - 1
-    args.PrevLogTerm = rf.logs[args.PrevLogIndex].Term
-    args.LeaderCommit = rf.commitIndex
+	args.Term = rf.currentTerm
+	args.LeaderID = rf.me
+	args.PrevLogIndex = len(rf.logs) - 1
+	args.PrevLogTerm = rf.logs[args.PrevLogIndex].Term
+	args.LeaderCommit = rf.commitIndex
 
-    if heartbeat {
-        args.Entries = nil
-    }
+	if heartbeat {
+		args.Entries = nil
+	}
 }
 
 //
 // AppendEntries RPC reply structure
 //
 type AppendEntriesReply struct {
-    Term        int     // currentTerm, for leader to update itself
-    Success     bool    // true if follower contained entry matching prevLogIndex and prevLogTerm
+	Term    int  // currentTerm, for leader to update itself
+	Success bool // true if follower contained entry matching prevLogIndex and prevLogTerm
 }
 
 //
 // AppendEntries RPC Handler
 //
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
-    rf.mu.Lock()
-    defer rf.mu.Unlock()
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 
-    // If heartbeat message, suppress leader election
-    if len(args.Entries) == 0 {
-        if args.Term < rf.currentTerm {
-            reply.Term = rf.currentTerm
-            reply.Success = false
-        } else {
-            reply.Success = true
+	// If heartbeat message, suppress leader election
+	if len(args.Entries) == 0 {
+		if args.Term < rf.currentTerm {
+			reply.Term = rf.currentTerm
+			reply.Success = false
+		} else {
+			reply.Success = true
 
-            // If encounter a leader, change to follower
-            if rf.isLeader {
-                rf.isLeader = false
-            }
+			// If encounter a leader, change to follower
+			if rf.isLeader {
+				rf.isLeader = false
+			}
 
-            // Reset election timer
-            rf.resetTimer <- struct{}{}
-        }
-    }
+			// Reset election timer
+			rf.resetTimer <- struct{}{}
+		}
+	}
 }
 
 //
@@ -355,7 +352,6 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	isLeader := true
 
 	// Your code here (2B).
-
 
 	return index, term, isLeader
 }
@@ -388,37 +384,37 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.persister = persister
 	rf.me = me
 
-    rf.isLeader = false
-    rf.votedFor = -1
+	rf.isLeader = false
+	rf.votedFor = -1
 
-    // Reinitialzie after election
-    rf.nextIndex = make([]int, len(peers))
-    rf.matchIndex = make([]int, len(peers))
+	// Reinitialzie after election
+	rf.nextIndex = make([]int, len(peers))
+	rf.matchIndex = make([]int, len(peers))
 
-    // Start with logs of length 1
-    rf.logs = make([]LogEntry, 1)
+	// Start with logs of length 1
+	rf.logs = make([]LogEntry, 1)
 
-    // matchIndex is initialized to leader's lastLogIndex + 1
-    for i := 0; i < len(peers); i++ {
-        rf.matchIndex[i] = len(rf.logs)
-    }
+	// matchIndex is initialized to leader's lastLogIndex + 1
+	for i := 0; i < len(peers); i++ {
+		rf.matchIndex[i] = len(rf.logs)
+	}
 
-    // Set election timeout to 400-800 ms
-    rf.electionTimeout = time.Millisecond * (400 + time.Duration(rand.Int63()%400))
-    rf.electionTimer = time.NewTimer(rf.electionTimeout)
-    rf.resetTimer = make(chan struct{})
+	// Set election timeout to 400-800 ms
+	rf.electionTimeout = time.Millisecond * (400 + time.Duration(rand.Int63()%400))
+	rf.electionTimer = time.NewTimer(rf.electionTimeout)
+	rf.resetTimer = make(chan struct{})
 
-    // Set heartbeat interval to 100 ms
-    rf.heartbeatInterval = time.Millisecond * 100
+	// Set heartbeat interval to 100 ms
+	rf.heartbeatInterval = time.Millisecond * 100
 
-    // Debugging message
-    DPrintf("Peer %d : Election(%s) Heartbeat(%s)\n", rf.me, rf.electionTimeout, rf.heartbeatInterval)
+	// Debugging message
+	DPrintf("Peer %d : Election(%s) Heartbeat(%s)\n", rf.me, rf.electionTimeout, rf.heartbeatInterval)
 
 	// Initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
-    // Kick off election
-    go rf.electionDaemon()
+	// Kick off election
+	go rf.electionDaemon()
 
 	return rf
 }
@@ -428,16 +424,16 @@ func Make(peers []*labrpc.ClientEnd, me int,
 // TODO: Why?
 //
 func (rf *Raft) electionDaemon() {
-    for {
-        select {
-        case <-rf.resetTimer:
-            rf.electionTimer.Reset(rf.electionTimeout)
-        case <-rf.electionTimer.C:
-            // TODO: What does this do? What does C mean?
-            rf.electionTimer.Reset(rf.electionTimeout)
-            go rf.canvassVotes()
-        }
-    }
+	for {
+		select {
+		case <-rf.resetTimer:
+			rf.electionTimer.Reset(rf.electionTimeout)
+		case <-rf.electionTimer.C:
+			// TODO: What does this do? What does C mean?
+			rf.electionTimer.Reset(rf.electionTimeout)
+			go rf.canvassVotes()
+		}
+	}
 }
 
 //
@@ -445,84 +441,84 @@ func (rf *Raft) electionDaemon() {
 // TODO: Why? Where is it in the paper?
 //
 func (rf *Raft) canvassVotes() {
-    var voteArgs RequestVoteArgs
-    rf.initRequestVoteArgs(&voteArgs)
+	var voteArgs RequestVoteArgs
+	rf.initRequestVoteArgs(&voteArgs)
 
-    // TODO: Why a channel of RequestVoteReply?
-    // Use buffered channel to avoid goroutine leak
-    peers := len(rf.peers)
-    replies := make(chan RequestVoteReply, peers)
+	// TODO: Why a channel of RequestVoteReply?
+	// Use buffered channel to avoid goroutine leak
+	peers := len(rf.peers)
+	replies := make(chan RequestVoteReply, peers)
 
-    // TODO: What is it?
-    var wg sync.WaitGroup
-    for i := 0; i < peers; i++ {
-        if i == rf.me {
-            // Reset itself electionTimer
-            rf.resetTimer <- struct{}{}
-        } else {
-            wg.Add(1)
-            go func(n int) {
-                defer wg.Done()
+	// TODO: What is it?
+	var wg sync.WaitGroup
+	for i := 0; i < peers; i++ {
+		if i == rf.me {
+			// Reset itself electionTimer
+			rf.resetTimer <- struct{}{}
+		} else {
+			wg.Add(1)
+			go func(n int) {
+				defer wg.Done()
 
-                var reply RequestVoteReply
-                if rf.sendRequestVote(n, &voteArgs, &reply) {
-                    replies <- reply
-                }
-            }(i)
-        }
-    }
+				var reply RequestVoteReply
+				if rf.sendRequestVote(n, &voteArgs, &reply) {
+					replies <- reply
+				}
+			}(i)
+		}
+	}
 
-    // Remember to close the channel
-    go func() {
-        wg.Wait()
-        close(replies)
-    }()
+	// Remember to close the channel
+	go func() {
+		wg.Wait()
+		close(replies)
+	}()
 
-    // TODO: What is it?
-    var votes = 1
-    for reply := range replies {
-        if reply.VoteGranted == true {
-            // Increase votes by 1, then if they are the majority,
-            // it becomes a leader
-            if votes++; votes > peers/2 {
-                rf.mu.Lock()
-                rf.isLeader = true
-                rf.mu.Unlock()
-                
-                // Start heartbeat daemon
-                go rf.heartbeatDaemon()
-                return
-            }
-        } else if reply.Term > voteArgs.Term {
-            // TODO: Why need to check this?
-            rf.mu.Lock()
-            rf.isLeader = false
-            rf.votedFor = -1    // return to follower
-            rf.mu.Unlock()
-            return
-        }
-    }
+	// TODO: What is it?
+	var votes = 1
+	for reply := range replies {
+		if reply.VoteGranted == true {
+			// Increase votes by 1, then if they are the majority,
+			// it becomes a leader
+			if votes++; votes > peers/2 {
+				rf.mu.Lock()
+				rf.isLeader = true
+				rf.mu.Unlock()
+
+				// Start heartbeat daemon
+				go rf.heartbeatDaemon()
+				return
+			}
+		} else if reply.Term > voteArgs.Term {
+			// TODO: Why need to check this?
+			rf.mu.Lock()
+			rf.isLeader = false
+			rf.votedFor = -1 // return to follower
+			rf.mu.Unlock()
+			return
+		}
+	}
 }
 
 //
 // Heartbeat Daemon will exist when peer is not a leader anymore
 //
 func (rf *Raft) heartbeatDaemon() {
-    for {
-        if _, isLeader := rf.GetState(); isLeader {
-            for i := 0; i < len(rf.peers); i++ {
-                if i == rf.me {
-                    // Reset itself electionTimer
-                    rf.resetTimer <- struct{}{}
-                } else {
-                    go rf.heartbeat(i)
-                }
-            }
-            time.Sleep(rf.heartbeatInterval)
-        } else {
-            break
-        }
-    }
+	for {
+		if _, isLeader := rf.GetState(); isLeader {
+			for i := 0; i < len(rf.peers); i++ {
+				if i == rf.me {
+					// Reset itself electionTimer
+					rf.resetTimer <- struct{}{}
+				} else {
+					go rf.heartbeat(i)
+				}
+			}
+			time.Sleep(rf.heartbeatInterval)
+		} else {
+			break
+		}
+	}
 }
 
 //
@@ -530,24 +526,24 @@ func (rf *Raft) heartbeatDaemon() {
 // TODO: What is the different between heartbeat and heartbeatDaemon
 //
 func (rf *Raft) heartbeat(n int) {
-    var args AppendEntriesArgs
-    rf.initAppendEntriesArgs(&args, true)
+	var args AppendEntriesArgs
+	rf.initAppendEntriesArgs(&args, true)
 
-    var reply AppendEntriesReply
-    if rf.sendAppendEntries(n, &args, &reply) {
-        // TODO: Retry until it succeed?
-        if !reply.Success {
-            rf.mu.Lock()
-            defer rf.mu.Unlock()
+	var reply AppendEntriesReply
+	if rf.sendAppendEntries(n, &args, &reply) {
+		// TODO: Retry until it succeed?
+		if !reply.Success {
+			rf.mu.Lock()
+			defer rf.mu.Unlock()
 
-            // If we found a new leader, step down to be a follower
-            if reply.Term > rf.currentTerm {
-                rf.currentTerm = reply.Term
-                rf.isLeader = false
-                rf.votedFor = -1
-            } else {
-                // TODO: Send log entry from leader
-            }
-        }
-    }
+			// If we found a new leader, step down to be a follower
+			if reply.Term > rf.currentTerm {
+				rf.currentTerm = reply.Term
+				rf.isLeader = false
+				rf.votedFor = -1
+			} else {
+				// TODO: Send log entry from leader
+			}
+		}
+	}
 }
