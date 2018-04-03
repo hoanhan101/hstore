@@ -103,8 +103,6 @@ func (rf *Raft) GetState() (int, bool) {
 	term = rf.currentTerm
 	isleader = rf.isLeader
 
-	// DPrintf("Peer %d - GetState(%d, %v)\n", rf.me, term, isleader)
-
 	return term, isleader
 }
 
@@ -173,8 +171,6 @@ func (rf *Raft) initRequestVoteArgs(args *RequestVoteArgs) {
 	args.CandidateID = rf.me
 	args.LastLogIndex = len(rf.logs) - 1
 	args.LastLogTerm = rf.logs[args.LastLogIndex].Term
-
-	// DPrintf("Peer %d - initVoteRequestArgs()\n", rf.me)
 }
 
 //
@@ -224,8 +220,6 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 			}
 		}
 	}
-
-	// DPrintf("Peer %d - RequestVote()\n", rf.me)
 }
 
 //
@@ -259,9 +253,6 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 //
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
-
-	// DPrintf("Peer %d - sendRequestVote()\n", rf.me)
-
 	return ok
 }
 
@@ -292,11 +283,10 @@ func (rf *Raft) initAppendEntriesArgs(args *AppendEntriesArgs, heartbeat bool) {
 	args.PrevLogTerm = rf.logs[args.PrevLogIndex].Term
 	args.LeaderCommit = rf.commitIndex
 
+	// If it is heartbeat message, empty log entries
 	if heartbeat {
 		args.Entries = nil
 	}
-
-	// DPrintf("Peer %d - initAppendEntriesArgs()\n", rf.me)
 }
 
 //
@@ -331,8 +321,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.resetTimer <- struct{}{}
 		}
 	}
-
-	// DPrintf("Peer %d - AppendEntriesArgs()\n", rf.me)
 }
 
 //
@@ -341,9 +329,6 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 //
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", args, reply)
-
-	// DPrintf("Peer %d - sendAppendEntriesArgs()\n", rf.me)
-
 	return ok
 }
 
@@ -422,13 +407,13 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.heartbeatInterval = time.Millisecond * 100
 
 	// Debugging message
-	DPrintf("Peer %d - ElectionTimeout: %s, HeartbeatInterval: %s\n",
+	DPrintf("raft.go \t Peer %d - Timeout: %s, Heartbeat: %s\n",
 		rf.me, rf.electionTimeout, rf.heartbeatInterval)
 
 	// Initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
 
-	// Kick off election
+	// Kick off leader election
 	go rf.electionDaemon()
 
 	return rf
@@ -436,14 +421,14 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 //
 // Election Daemon never exit, but can be reset.
-// It listens in the background and reset timer based on different cases.
+// It listens in the background and reset timer based on different timeout.
 //
 func (rf *Raft) electionDaemon() {
 	for {
 		select {
 		case <-rf.resetTimer:
 			rf.electionTimer.Reset(rf.electionTimeout)
-			// When the Timer expires, the current time will be sent on C
+		// When the Timer expires, the current time will be sent on C
 		case <-rf.electionTimer.C:
 			rf.electionTimer.Reset(rf.electionTimeout)
 			go rf.canvassVotes()
@@ -464,7 +449,8 @@ func (rf *Raft) canvassVotes() {
 	// Make channel of RequestVoteReply
 	replies := make(chan RequestVoteReply, peers)
 
-	// Send RequestVoteRPC to all other servers
+	// Send RequestVoteRPC to all peers and
+	// pull RequestVoteReply to replies channel
 	var wg sync.WaitGroup
 	for i := 0; i < peers; i++ {
 		if i == rf.me {
@@ -494,7 +480,7 @@ func (rf *Raft) canvassVotes() {
 		if reply.VoteGranted == true {
 			// If receives votes from majority of servers, becomes a leader
 			if votes++; votes > peers/2 {
-				DPrintf("Peer %d - currentTerm=%v is the leader", rf.me, rf.currentTerm)
+				DPrintf("raft.go \t Peer %d - Term %d: Won the election", rf.me, rf.currentTerm)
 				rf.mu.Lock()
 				rf.isLeader = true
 				rf.mu.Unlock()
@@ -551,8 +537,7 @@ func (rf *Raft) heartbeat(n int) {
 
 			// If we found a new leader, step down to be a follower
 			if reply.Term > rf.currentTerm {
-				DPrintf("Peer %d - Since replyTerm=%v > currentTerm=%v, found a new leader\n",
-					rf.me, reply.Term, rf.currentTerm)
+				DPrintf("raft.go \t Peer %d - Term %d: Found new leader", rf.me, rf.currentTerm)
 				rf.currentTerm = reply.Term
 				rf.isLeader = false
 				rf.votedFor = -1

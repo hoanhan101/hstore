@@ -20,11 +20,12 @@ import "sync"
 const RaftElectionTimeout = 1000 * time.Millisecond
 
 func TestInitialElection2A(t *testing.T) {
+    fmt.Println("Test (2A): Reset")
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
 
-	cfg.begin("Test (2A): initial election")
+	cfg.begin("Test (2A): Initial election")
 
 	// is a leader elected?
 	cfg.checkOneLeader()
@@ -45,11 +46,12 @@ func TestInitialElection2A(t *testing.T) {
 }
 
 func TestReElection2A(t *testing.T) {
+    fmt.Println("Test (2A): Reset")
 	servers := 3
 	cfg := make_config(t, servers, false)
 	defer cfg.cleanup()
 
-	cfg.begin("Test (2A): election after network failure")
+	cfg.begin("Test (2A): Election after network failure")
 
 	leader1 := cfg.checkOneLeader()
 
