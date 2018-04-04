@@ -75,18 +75,17 @@ type Raft struct {
 
 	// Persistent state on all servers
 	// Update on stable storage before responding to RPCs
-	currentTerm int
-	votedFor    int
-	logs        []LogEntry
+	currentTerm int         // latest term server has seen
+	votedFor    int         // candidateID that received vote in current term
+	logs        []LogEntry  // log entries that contain command for state machine
 
 	// Volatile state on all servers
-	commitIndex int
-	lastApplied int
+	commitIndex int         // index of highest log entry known to be committed
+	lastApplied int         // index of highest log entry applied to state machine
 
-	// Volatile state on leaders
-	// Reinitialized after election
-	nextIndex  []int
-	matchIndex []int
+	// Volatile state on leaders (reinitialized after election)
+	nextIndex  []int        // index of next log entry to send to that server
+	matchIndex []int        // index of highest log entry known to be replicated
 }
 
 //
@@ -393,9 +392,9 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	// Start with logs of length 1
 	rf.logs = make([]LogEntry, 1)
 
-	// matchIndex is initialized to leader's lastLogIndex + 1
+	// nextIndex is initialized to leader's lastLogIndex + 1
 	for i := 0; i < len(peers); i++ {
-		rf.matchIndex[i] = len(rf.logs)
+		rf.nextIndex[i] = len(rf.logs)
 	}
 
 	// Set election timeout to 400-800 ms
