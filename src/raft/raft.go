@@ -68,10 +68,10 @@ type Raft struct {
 
 	resetTimer      chan struct{}
 	electionTimer   *time.Timer
-	electionTimeout time.Duration // 500 ~ 800 ms
+	electionTimeout time.Duration
 
 	// Heartbeat
-	heartbeatInterval time.Duration // 150 ms
+	heartbeatInterval time.Duration
 
 	// Persistent state on all servers
 	// Update on stable storage before responding to RPCs
@@ -408,7 +408,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 
 	// Debugging message
 	DPrintf("raft.go \t Peer %d - Timeout: %s, Heartbeat: %s\n",
-		rf.me, rf.electionTimeout, rf.heartbeatInterval)
+            rf.me, rf.electionTimeout, rf.heartbeatInterval)
 
 	// Initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
@@ -537,7 +537,8 @@ func (rf *Raft) heartbeat(n int) {
 
 			// If we found a new leader, step down to be a follower
 			if reply.Term > rf.currentTerm {
-				DPrintf("raft.go \t Peer %d - Term %d: Found new leader", rf.me, rf.currentTerm)
+				DPrintf("raft.go \t Peer %d - Term %d: Found a new Leader on Term %d", 
+                        rf.me, rf.currentTerm, reply.Term)
 				rf.currentTerm = reply.Term
 				rf.isLeader = false
 				rf.votedFor = -1
