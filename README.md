@@ -10,6 +10,9 @@ of Raft, a replicated state machine protocol.
 It is still a work-in-progress. Here is the initial project's [proposal](PROPOSAL.md).
 Other parts will be updated as soon as it is live and ready.
 
+- [x] Implement Raft Consensus Algorithm
+- [ ] Implement Fault-tolerant Key-Value Service
+
 ## Table of Contents
 - [Getting Started](#getting-started)
   - [Installing](#installing)
