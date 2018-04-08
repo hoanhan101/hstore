@@ -227,7 +227,7 @@ func (rf *Raft) InstallSnapshot(args InstallSnapshotArgs, reply *InstallSnapshot
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
 
-    // reply immediately if term < currentTerm
+	// reply immediately if term < currentTerm
 	reply.Term = rf.currentTerm
 	if args.Term < rf.currentTerm {
 		return
@@ -245,7 +245,7 @@ func (rf *Raft) InstallSnapshot(args InstallSnapshotArgs, reply *InstallSnapshot
 		rf.votedFor = -1
 	}
 
-    // save snapshot file, discard any existing or partial snapshot with a smaller index
+	// save snapshot file, discard any existing or partial snapshot with a smaller index
 	rf.persister.SaveSnapshot(args.Data)
 	rf.TruncateLogs(args.LastIncludeIndex, args.LastIncludeTerm)
 	rf.lastApplied = args.LastIncludeIndex
@@ -344,9 +344,9 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	defer rf.mu.Unlock()
 	defer rf.persist()
 
-    // default reply is false
-    // return if term < currentTerm
-    // return if log doesn't contain an entry at prevLogIndex whose term matches prevLogTerm
+	// default reply is false
+	// return if term < currentTerm
+	// return if log doesn't contain an entry at prevLogIndex whose term matches prevLogTerm
 	reply.Success = false
 	reply.Term = args.Term
 
@@ -378,8 +378,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		firstIndex = rf.logs[0].Index
 	}
 
-    // if an existing entry conflicts with a new one (same index but different term)
-    // delete the existing entry and all that follow it
+	// if an existing entry conflicts with a new one (same index but different term)
+	// delete the existing entry and all that follow it
 	if args.PrevLogIndex >= firstIndex {
 		term := rf.logs[args.PrevLogIndex-firstIndex].Term
 
@@ -394,14 +394,14 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			return
 		}
 
-        // append nay new entries not already in the log
+		// append nay new entries not already in the log
 		rf.logs = append(rf.logs[:args.PrevLogIndex+1-firstIndex], args.Entries...)
 
 		reply.NextIndex = rf.getLastIndex() + 1
 		reply.Success = true
 	}
 
-    // if leaderCOmmit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry)
+	// if leaderCOmmit > commitIndex, set commitIndex = min(leaderCommit, index of last new entry)
 	if args.LeaderCommit > rf.commitIndex {
 		last := rf.getLastIndex()
 
@@ -555,8 +555,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	defer rf.mu.Unlock()
 	defer rf.persist()
 
-    // default reply is false
-    // return if term < currentTerm
+	// default reply is false
+	// return if term < currentTerm
 	reply.VoteGranted = false
 
 	if args.Term < rf.currentTerm {
@@ -572,8 +572,8 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 
 	reply.Term = rf.currentTerm
 
-    // if voteFor is null or candidateId,
-    // and candidate's log is at least as up-to-date as receiver's log, grant vote
+	// if voteFor is null or candidateId,
+	// and candidate's log is at least as up-to-date as receiver's log, grant vote
 	if (rf.votedFor == -1 || rf.votedFor == args.CandidateID) &&
 		rf.isUptoDate(args.LastLogIndex, args.LastLogTerm) {
 		reply.VoteGranted = true
@@ -668,7 +668,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 			rf.persist()
 		}
 
-        // if receive majority of votes, become a leader
+		// if receive majority of votes, become a leader
 		if reply.VoteGranted {
 			rf.voteCount++
 			if rf.state == CANDIDATE && 2*rf.voteCount > len(rf.peers) {
