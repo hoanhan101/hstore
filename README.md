@@ -61,7 +61,7 @@ separately, then substitute the section and run the test accordingly:
 ## Reference
 
 - [6.824: Distributed Systems Spring 2017](http://nil.csail.mit.edu/6.824/2017/)
-- [ZiyueHuang/Distributed-Systems](https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go)
+- [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go)
 
 ## Other
 
