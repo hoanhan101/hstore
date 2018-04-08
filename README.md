@@ -42,7 +42,7 @@ git clone https://github.com/hoanhan101/hstore.git && cd hstore
 
 > TODO
 
-## MIT's 6.284
+## MIT's 6.824
 
 Assume that user set the `GOPATH` correctly, one can follow these instructions 
 to run tests for different programs. If not, here is
