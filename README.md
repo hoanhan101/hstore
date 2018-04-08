@@ -44,11 +44,57 @@ $ cd "$GOPATH/src/raft"
 $ go test
 ```
 
-This will run all the test for Raft. If one want to test the program
-separately, then substitute the section and run the test accordingly:
-- `go test -run 2A`: leader election and heartbeats
-- `go test -run 2B`: log replications
-- `go test -run 2C`: persistent state
+This will run all the test for Raft. If one want to test features
+separately, then:
+- `go test -run 2A` checks leader election and heartbeats
+- `go test -run 2B` checks log replication
+- `go test -run 2C` checks persistent state
+
+One can also check how much real time and CPU time with the `time` command:
+```
+time go test
+```
+
+Here is an example output:
+```
+Test (2A): initial election ...
+  ... Passed
+Test (2A): election after network failure ...
+  ... Passed
+Test (2B): basic agreement ...
+  ... Passed
+Test (2B): agreement despite follower disconnection ...
+  ... Passed
+Test (2B): no agreement if too many followers disconnect ...
+  ... Passed
+Test (2B): concurrent Start()s ...
+  ... Passed
+Test (2B): rejoin of partitioned leader ...
+  ... Passed
+Test (2B): leader backs up quickly over incorrect follower logs ...
+  ... Passed
+Test (2B): RPC counts aren't too high ...
+  ... Passed
+Test (2C): basic persistence ...
+  ... Passed
+Test (2C): more persistence ...
+  ... Passed
+Test (2C): partitioned leader and one follower crash, leader restarts ...
+  ... Passed
+Test (2C): Figure 8 ...
+  ... Passed
+Test (2C): unreliable agreement ...
+  ... Passed
+Test (2C): Figure 8 (unreliable) ...
+  ... Passed
+Test (2C): churn ...
+  ... Passed
+Test (2C): unreliable churn ...
+  ... Passed
+PASS
+ok      raft    203.338s
+go test  76.76s user 17.07s system 46% cpu 3:23.92 total
+```
 
 ### Running
 
