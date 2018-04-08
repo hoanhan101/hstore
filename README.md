@@ -1,9 +1,9 @@
 # hstore
 
-**hstore** is a fault-tolerant distributed key-value store that is based on
+**hstore** is a fault-tolerant distributed key-value store inspired by
 [MIT's 6.824: Distributed System Spring 2017 Lab](http://nil.csail.mit.edu/6.824/2017/).
-The goal of the project is to build a simple, reliable key/value store on top
-of Raft library, which is used to manage a highly-available replicated log.
+The goal of the project is to build a simple, fast and reliable database on top
+of Raft, a replicated state machine protocol.
 
 ## Project Status
 
