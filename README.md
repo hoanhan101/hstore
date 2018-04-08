@@ -13,13 +13,14 @@ Other parts will be updated as soon as it is live and ready.
 ## Table of Contents
 - [Getting Started](#getting-started)
   - [Installing](#installing)
-  - [Testing](#testing)
   - [Running](#running)
+  - [Testing](#testing)
   - [Example](#example)
-- [Reference](#reference)
-- [Other](#other)
+- [MIT's 6.824](#mits6824)
+  - [raft](#raft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
+- [Reference](#reference)
 
 ## Getting Started
 
@@ -29,7 +30,19 @@ Other parts will be updated as soon as it is live and ready.
 git clone https://github.com/hoanhan101/hstore.git && cd hstore
 ```
 
+### Running
+
+> TODO
+
 ### Testing
+
+> TODO
+
+### Example
+
+> TODO
+
+## MIT's 6.284
 
 Assume that user set the `GOPATH` correctly, one can follow these instructions 
 to run tests for different programs. If not, here is
@@ -96,24 +109,6 @@ ok      raft    203.338s
 go test  76.76s user 17.07s system 46% cpu 3:23.92 total
 ```
 
-### Running
-
-> TODO
-
-### Example
-
-> TODO
-
-## Reference
-
-- [6.824: Distributed Systems Spring 2017](http://nil.csail.mit.edu/6.824/2017/)
-- [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go)
-
-## Other
-
-Other libraries/programs that are featured in MIT's lab. Here is how user can
-test it.
-
 ### [mapreduce](src/mapreduce)
 
 ```
@@ -142,3 +137,8 @@ $ bash ./test-wc.sh
 ```
 
 This will do the test and clean up all intermediate files afterward.
+
+## Reference
+
+- [6.824: Distributed Systems Spring 2017](http://nil.csail.mit.edu/6.824/2017/)
+- [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go)
