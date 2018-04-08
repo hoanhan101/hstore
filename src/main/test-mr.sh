@@ -10,12 +10,12 @@ echo "==> Part II"
 (cd "$here" && sh ./test-wc.sh > /dev/null)
 echo ""
 echo "==> Part III"
-go test -run TestParallel mapreduce/...
+go test -run TestBasic mapreduce/...
 echo ""
 echo "==> Part IV"
 go test -run Failure mapreduce/...
 echo ""
-echo "==> Part V (inverted index)"
+echo "==> Part V (challenge)"
 (cd "$here" && sh ./test-ii.sh > /dev/null)
 
 rm "$here"/mrtmp.* "$here"/diff.out

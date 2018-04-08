@@ -127,7 +127,8 @@ In other word, Raft does most of the heavy lifting for the system.
 
 ## Timeline
 
-I am using [MIT's 6.824 Distributed System course](https://pdos.csail.mit.edu/6.824/index.html) 
+I am using [MIT's 6.824 Distributed System
+Spring 2017](http://nil.csail.mit.edu/6.824/2017/) 
 as a guideline for my implementation. Their labs provide pointers and 
 resources on how to build a fault-tolerant key-value storage, which is exactly
 what I want to accomplish for this project. They start with Raft implementation, 
@@ -150,7 +151,7 @@ My timeline is also largely dependent on their course's schedule.
   - Get familiar with Go by going through MapReduce's implementation.
   - Start thinking about Raft implementation and update the proposal along the way.
 - Approach:
-  - [Lab 1: MapReduce](https://pdos.csail.mit.edu/6.824/labs/lab-1.html)
+  - [Lab 1: MapReduce](http://nil.csail.mit.edu/6.824/2017/labs/lab-1.html)
 - Deliverables:
   - A working MapReduce library.
 
@@ -158,7 +159,7 @@ My timeline is also largely dependent on their course's schedule.
 - Task:
   - Implement a minimum version of Raft.
 - Approach:
-  - [Lab 2: Raft](https://pdos.csail.mit.edu/6.824/labs/lab-raft.html)
+  - [Lab 2: Raft](http://nil.csail.mit.edu/6.824/2017/labs/lab-raft.html)
 - Deliverables:
   - A working version of Raft.
 
@@ -166,8 +167,10 @@ My timeline is also largely dependent on their course's schedule.
 - Task:
   - Build a key-value store using Raft library.
 - Approach:
-  - [Lab 3: Fault-tolerant Key/Value Service](https://pdos.csail.mit.edu/6.824/labs/lab-kvraft.html)
-  - [Lab 4: Sharded Key/Value Service](https://pdos.csail.mit.edu/6.824/labs/lab-shard.html)
+  - [Lab 3: Fault-tolerant Key/Value
+    Service](http://nil.csail.mit.edu/6.824/2017/labs/lab-kvraft.html)
+  - [Lab 4: Sharded Key/Value
+    Service](http://nil.csail.mit.edu/6.824/2017/labs/lab-shard.html)
 - Deliverables:
   - A robust key-value store that "shards
 

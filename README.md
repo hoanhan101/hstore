@@ -6,8 +6,8 @@ It is written in Go and uses the Raft consensus algorithm
 to manage a highly-available replicated log.
 
 The project uses [MIT's 6.824: Distributed
-System course](https://pdos.csail.mit.edu/6.824/) as a guideline and aims to
-add more features on top of that.
+System Spring 2017](http://nil.csail.mit.edu/6.824/2017/) as a guideline
+and foundation to add more interesting features.
 
 Here is the project's [proposal](PROPOSAL.md). Other parts will be updated as
 soon as it is live and ready.
@@ -45,7 +45,7 @@ $ cd hstore
 $ export "GOPATH=$PWD" 
 $ cd "$GOPATH/src/mapreduce"
 $ go test -run Sequential
-$ go test -run TestParallel
+$ go test -run TestBasic
 ```
 
 To give more verbose output, set `debugEnabled = true` in
@@ -53,7 +53,7 @@ To give more verbose output, set `debugEnabled = true` in
 For example:
 
 ```
-$ go test -v -run TestParallel
+$ go test -v -run TestBasic
 ```
 
 ### [word-count with mapreduce](src/main/wc.go)

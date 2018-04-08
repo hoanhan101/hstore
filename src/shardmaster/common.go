@@ -14,7 +14,10 @@ package shardmaster
 // #0 is the initial configuration, with no groups and all shards
 // assigned to group 0 (the invalid group).
 //
-// You will need to add fields to the RPC argument structs.
+// A GID is a replica group ID. GIDs must be uniqe and > 0.
+// Once a GID joins, and leaves, it should never join again.
+//
+// You will need to add fields to the RPC arguments.
 //
 
 // The number of shards.

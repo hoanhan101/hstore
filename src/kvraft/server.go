@@ -1,7 +1,7 @@
 package raftkv
 
 import (
-	"labgob"
+	"encoding/gob"
 	"labrpc"
 	"log"
 	"raft"
@@ -17,13 +17,14 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
+
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
 }
 
-type KVServer struct {
+type RaftKV struct {
 	mu      sync.Mutex
 	me      int
 	rf      *raft.Raft
@@ -34,21 +35,22 @@ type KVServer struct {
 	// Your definitions here.
 }
 
-func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
+
+func (kv *RaftKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 }
 
-func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
+func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 }
 
 //
-// the tester calls Kill() when a KVServer instance won't
+// the tester calls Kill() when a RaftKV instance won't
 // be needed again. you are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
 //
-func (kv *KVServer) Kill() {
+func (kv *RaftKV) Kill() {
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
@@ -66,12 +68,12 @@ func (kv *KVServer) Kill() {
 // StartKVServer() must return quickly, so it should start goroutines
 // for any long-running work.
 //
-func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister, maxraftstate int) *KVServer {
-	// call labgob.Register on structures you want
+func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister, maxraftstate int) *RaftKV {
+	// call gob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.
-	labgob.Register(Op{})
+	gob.Register(Op{})
 
-	kv := new(KVServer)
+	kv := new(RaftKV)
 	kv.me = me
 	kv.maxraftstate = maxraftstate
 

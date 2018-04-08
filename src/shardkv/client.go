@@ -104,6 +104,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 	args.Value = value
 	args.Op = op
 
+
 	for {
 		shard := key2shard(key)
 		gid := ck.config.Shards[shard]

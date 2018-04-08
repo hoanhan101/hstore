@@ -15,8 +15,8 @@ import (
 
 const (
 	nNumber = 100000
-	nMap    = 20
-	nReduce = 10
+	nMap    = 100
+	nReduce = 50
 )
 
 // Create input file with N numbers
@@ -159,35 +159,15 @@ func TestSequentialMany(t *testing.T) {
 	cleanup(mr)
 }
 
-func TestParallelBasic(t *testing.T) {
+func TestBasic(t *testing.T) {
 	mr := setup()
 	for i := 0; i < 2; i++ {
 		go RunWorker(mr.address, port("worker"+strconv.Itoa(i)),
-			MapFunc, ReduceFunc, -1, nil)
+			MapFunc, ReduceFunc, -1)
 	}
 	mr.Wait()
 	check(t, mr.files)
 	checkWorker(t, mr.stats)
-	cleanup(mr)
-}
-
-func TestParallelCheck(t *testing.T) {
-	mr := setup()
-	parallelism := &Parallelism{}
-	for i := 0; i < 2; i++ {
-		go RunWorker(mr.address, port("worker"+strconv.Itoa(i)),
-			MapFunc, ReduceFunc, -1, parallelism)
-	}
-	mr.Wait()
-	check(t, mr.files)
-	checkWorker(t, mr.stats)
-
-	parallelism.mu.Lock()
-	if parallelism.max < 2 {
-		t.Fatalf("workers did not execute in parallel")
-	}
-	parallelism.mu.Unlock()
-
 	cleanup(mr)
 }
 
@@ -195,9 +175,9 @@ func TestOneFailure(t *testing.T) {
 	mr := setup()
 	// Start 2 workers that fail after 10 tasks
 	go RunWorker(mr.address, port("worker"+strconv.Itoa(0)),
-		MapFunc, ReduceFunc, 10, nil)
+		MapFunc, ReduceFunc, 10)
 	go RunWorker(mr.address, port("worker"+strconv.Itoa(1)),
-		MapFunc, ReduceFunc, -1, nil)
+		MapFunc, ReduceFunc, -1)
 	mr.Wait()
 	check(t, mr.files)
 	checkWorker(t, mr.stats)
@@ -217,10 +197,10 @@ func TestManyFailures(t *testing.T) {
 		default:
 			// Start 2 workers each sec. The workers fail after 10 tasks
 			w := port("worker" + strconv.Itoa(i))
-			go RunWorker(mr.address, w, MapFunc, ReduceFunc, 10, nil)
+			go RunWorker(mr.address, w, MapFunc, ReduceFunc, 10)
 			i++
 			w = port("worker" + strconv.Itoa(i))
-			go RunWorker(mr.address, w, MapFunc, ReduceFunc, 10, nil)
+			go RunWorker(mr.address, w, MapFunc, ReduceFunc, 10)
 			i++
 			time.Sleep(1 * time.Second)
 		}
