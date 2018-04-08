@@ -16,7 +16,7 @@ Other parts will be updated as soon as it is live and ready.
   - [Running](#running)
   - [Testing](#testing)
   - [Example](#example)
-- [MIT's 6.824](#mits6824)
+- [MIT's 6.824](#mits-6824)
   - [raft](#raft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
