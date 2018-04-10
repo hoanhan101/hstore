@@ -186,7 +186,6 @@ func (rf *Raft) TruncateLogs(lastIndex int, lastTerm int) {
 // read Snapshot
 //
 func (rf *Raft) readSnapshot(data []byte) {
-
 	rf.readPersist(rf.persister.ReadRaftState())
 
 	if len(data) == 0 {
@@ -283,6 +282,7 @@ func (rf *Raft) sendSnapshot(server int, args InstallSnapshotArgs, reply *Instal
 		rf.nextIndex[server] = args.LastIncludeIndex + 1
 		rf.matchIndex[server] = args.LastIncludeIndex
 	}
+
 	return ok
 }
 
@@ -362,6 +362,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		return
 	}
 
+	// if argument term > current term, update current term and turn to follower
 	if args.Term > rf.currentTerm {
 		rf.currentTerm = args.Term
 		rf.state = FOLLOWER
@@ -504,6 +505,9 @@ func (rf *Raft) broadcastAppendEntries() {
 			}
 		}
 
+		// if there exists and N such at N > commitIndex,
+		// a mojority of matchIndex[i] >= N and log[N].term == currentTerm,
+		// then set commitIndex = N
 		nextCommit := rf.commitIndex
 		last := rf.getLastIndex()
 		for i := nextCommit + 1; i <= last; i++ {
