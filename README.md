@@ -21,8 +21,8 @@ Other parts will be updated as soon as it is live and ready.
   - [Testing](#testing)
   - [Example](#example)
 - [MIT's 6.824](#mits-6824)
-  - [raft](#raft)
   - [kvraft](#kvraft)
+  - [raft](#raft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
 - [Reference](#reference)
@@ -58,7 +58,7 @@ to run tests for different programs. If not, here is
 ```
 $ cd hstore
 $ export "GOPATH=$PWD" 
-$ cd "$GOPATH/src/raft"
+$ cd "$GOPATH/src/kvraft"
 $ go test
 ```
 
