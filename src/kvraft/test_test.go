@@ -1,13 +1,15 @@
 package raftkv
 
-import "testing"
-import "strconv"
-import "time"
-import "fmt"
-import "math/rand"
-import "log"
-import "strings"
-import "sync/atomic"
+import (
+	"fmt"
+	"log"
+	"math/rand"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"testing"
+	"time"
+)
 
 // The tester generously allows solutions to complete elections in one second
 // (much more than the paper's range of timeouts).
@@ -213,7 +215,7 @@ func GenericTest(t *testing.T, tag string, nclients int, unreliable bool, crash 
 			// log.Printf("read from clients %d\n", i)
 			j := <-clnts[i]
 			if j < 10 {
-				log.Printf("Warning: client %d managed to perform only %d put operations in 1 sec?\n", i, j)
+				// log.Printf("Warning: client %d managed to perform only %d put operations in 1 sec?\n", i, j)
 			}
 			key := strconv.Itoa(i)
 			// log.Printf("Check %v for client %d\n", j, i)
