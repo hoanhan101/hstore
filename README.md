@@ -11,7 +11,8 @@ It is still a work-in-progress. Here is the initial project's [proposal](PROPOSA
 Other parts will be updated as soon as it is live and ready.
 
 - [x] Implement Raft Consensus Algorithm
-- [ ] Implement Fault-tolerant Key-Value Service
+- [x] Implement Fault-tolerant Key-Value Service
+- [ ] Make CLI
 
 ## Table of Contents
 - [Getting Started](#getting-started)
@@ -21,6 +22,7 @@ Other parts will be updated as soon as it is live and ready.
   - [Example](#example)
 - [MIT's 6.824](#mits-6824)
   - [raft](#raft)
+  - [kvraft](#kvraft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
 - [Reference](#reference)
@@ -50,6 +52,63 @@ git clone https://github.com/hoanhan101/hstore.git && cd hstore
 Assume that user set the `GOPATH` correctly, one can follow these instructions 
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
+
+### [kvraft](src/kvraft)
+
+```
+$ cd hstore
+$ export "GOPATH=$PWD" 
+$ cd "$GOPATH/src/raft"
+$ go test
+```
+
+Here is an example output:
+```
+Test: One client ...
+  ... Passed
+Test: concurrent clients ...
+  ... Passed
+Test: unreliable ...
+  ... Passed
+Test: Concurrent Append to same key, unreliable ...
+  ... Passed
+Test: Progress in majority ...
+  ... Passed
+Test: No progress in minority ...
+  ... Passed
+Test: Completion after heal ...
+  ... Passed
+Test: many partitions ...
+  ... Passed
+Test: many partitions, many clients ...
+  ... Passed
+Test: persistence with one client ...
+  ... Passed
+Test: persistence with concurrent clients ...
+  ... Passed
+Test: persistence with concurrent clients, unreliable ...
+  ... Passed
+Test: persistence with concurrent clients and repartitioning servers...
+  ... Passed
+Test: persistence with concurrent clients and repartitioning servers, unreliable...
+  ... Passed
+Test: InstallSnapshot RPC ...
+  ... Passed
+Test: snapshot size is reasonable ...
+  ... Passed
+Test: persistence with one client and snapshots ...
+  ... Passed
+Test: persistence with several clients and snapshots ...
+  ... Passed
+Test: persistence with several clients, snapshots, unreliable ...
+  ... Passed
+Test: persistence with several clients, failures, and snapshots, unreliable ...
+  ... Passed
+Test: persistence with several clients, failures, and snapshots, unreliable and partitions ...
+  ... Passed
+PASS
+ok      kvraft  535.876s
+```
 
 ### [raft](src/raft)
 
