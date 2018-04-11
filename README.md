@@ -144,4 +144,4 @@ This will do the test and clean up all intermediate files afterward.
 ## Reference
 
 - [6.824: Distributed Systems Spring 2017](http://nil.csail.mit.edu/6.824/2017/)
-- [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go)
+- [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems)
