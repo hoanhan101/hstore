@@ -4,20 +4,19 @@ package raft
 // support for Raft and kvraft to save persistent
 // Raft state (log &c) and k/v server snapshots.
 //
-// a “real” implementation would do this by writing Raft's persistent state 
-// to disk each time it changes, and reading the latest saved state from disk 
-// when restarting after a reboot. 
-// this implementation won't use the disk; instead, it will save and restore 
-// persistent state from a Persister object. Whoever calls Raft.Make() 
-// supplies a Persister that initially holds Raft's most recently persisted state (if any). 
-// Raft should initialize its state from that Persister, and should use it to 
+// a “real” implementation would do this by writing Raft's persistent state
+// to disk each time it changes, and reading the latest saved state from disk
+// when restarting after a reboot.
+// this implementation won't use the disk; instead, it will save and restore
+// persistent state from a Persister object. Whoever calls Raft.Make()
+// supplies a Persister that initially holds Raft's most recently persisted state (if any).
+// Raft should initialize its state from that Persister, and should use it to
 // save its persistent state each time the state changes.
 //
 // we will use the original persister.go to test your code for grading.
 // so, while you can modify this code to help you debug, please
 // test with the original before submitting.
-// 
-
+//
 
 import "sync"
 

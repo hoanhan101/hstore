@@ -1,13 +1,13 @@
 package raftkv
 
 import (
-    "bytes"
+	"bytes"
 	"encoding/gob"
 	"labrpc"
 	"log"
 	"raft"
 	"sync"
-    "time"
+	"time"
 )
 
 const Debug = 0
@@ -23,11 +23,11 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 // Operation structure
 //
 type Op struct {
-    Type      string
-    Key       string
-    Value     string
-    ClientID  int64
-    RequestID int
+	Type      string
+	Key       string
+	Value     string
+	ClientID  int64
+	RequestID int
 }
 
 //
@@ -41,10 +41,10 @@ type RaftKV struct {
 
 	maxraftstate int // snapshot if log grows this big
 
-    kvDB   map[string]string
-    dup    map[int64]int
-    result map[int]chan Op
-    killCh chan bool
+	kvDB   map[string]string
+	dup    map[int64]int
+	result map[int]chan Op
+	killCh chan bool
 }
 
 //
@@ -75,7 +75,7 @@ func (kv *RaftKV) AppendEntry(entry Op) bool {
 }
 
 //
-//
+// Get RPC
 //
 func (kv *RaftKV) Get(args *GetArgs, reply *GetReply) {
 	entry := Op{Type: "Get", Key: args.Key, ClientID: args.ClientID, RequestID: args.RequestID}
@@ -94,19 +94,19 @@ func (kv *RaftKV) Get(args *GetArgs, reply *GetReply) {
 		}
 		kv.dup[args.ClientID] = args.RequestID
 		kv.mu.Unlock()
-    }
+	}
 }
 
 //
-//
+// PutAppend RPC
 //
 func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	entry := Op{
-        Type: args.Op, 
-        Key: args.Key, 
-        Value: args.Value, 
-        ClientID: args.ClientID, 
-        RequestID: args.RequestID}
+		Type:      args.Op,
+		Key:       args.Key,
+		Value:     args.Value,
+		ClientID:  args.ClientID,
+		RequestID: args.RequestID}
 
 	ok := kv.AppendEntry(entry)
 	if !ok {
@@ -125,7 +125,7 @@ func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 //
 func (kv *RaftKV) Kill() {
 	kv.rf.Kill()
-    close(kv.killCh)
+	close(kv.killCh)
 }
 
 //

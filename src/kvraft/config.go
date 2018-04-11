@@ -1,20 +1,20 @@
 package raftkv
 
 import (
-    "labrpc"
-    "testing"
-    "os"
-    crand "crypto/rand"
-    "math/rand"
-    "encoding/base64"
-    "sync"
-    "runtime"
-    "raft"
-    "fmt"
+	crand "crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"labrpc"
+	"math/rand"
+	"os"
+	"raft"
+	"runtime"
+	"sync"
+	"testing"
 )
 
 //
-//
+// make a random string
 //
 func randstring(n int) string {
 	b := make([]byte, 2*n)
@@ -24,7 +24,7 @@ func randstring(n int) string {
 }
 
 //
-// Randomize server handles
+// randomize server handles
 //
 func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	sa := make([]*labrpc.ClientEnd, len(kvh))
@@ -37,7 +37,7 @@ func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 }
 
 //
-//
+// config structure
 //
 type config struct {
 	mu           sync.Mutex
@@ -54,7 +54,7 @@ type config struct {
 }
 
 //
-//
+// clean up config
 //
 func (cfg *config) cleanup() {
 	cfg.mu.Lock()
@@ -67,7 +67,7 @@ func (cfg *config) cleanup() {
 }
 
 //
-// Maximum log size across all servers
+// return maximum log size across all servers
 //
 func (cfg *config) LogSize() int {
 	logsize := 0
@@ -81,7 +81,7 @@ func (cfg *config) LogSize() int {
 }
 
 //
-// Maximum snapshot size across all servers
+// return maximum snapshot size across all servers
 //
 func (cfg *config) SnapshotSize() int {
 	snapshotsize := 0
@@ -115,7 +115,7 @@ func (cfg *config) connectUnlocked(i int, to []int) {
 }
 
 //
-//
+// connect server
 //
 func (cfg *config) connect(i int, to []int) {
 	cfg.mu.Lock()
@@ -148,7 +148,7 @@ func (cfg *config) disconnectUnlocked(i int, from []int) {
 }
 
 //
-//
+// disconnect server
 //
 func (cfg *config) disconnect(i int, from []int) {
 	cfg.mu.Lock()
@@ -157,7 +157,7 @@ func (cfg *config) disconnect(i int, from []int) {
 }
 
 //
-//
+// return all config servers
 //
 func (cfg *config) All() []int {
 	all := make([]int, cfg.n)
@@ -168,7 +168,7 @@ func (cfg *config) All() []int {
 }
 
 //
-//
+// connect all servers
 //
 func (cfg *config) ConnectAll() {
 	cfg.mu.Lock()
@@ -179,7 +179,7 @@ func (cfg *config) ConnectAll() {
 }
 
 //
-// Sets up 2 partitions with connectivity between servers in each  partition.
+// set up 2 partitions with connectivity between servers in each  partition.
 //
 func (cfg *config) partition(p1 []int, p2 []int) {
 	cfg.mu.Lock()
@@ -196,7 +196,7 @@ func (cfg *config) partition(p1 []int, p2 []int) {
 }
 
 //
-// Create a clerk with clerk specific server names.
+// create a clerk with clerk specific server names.
 // Give it connections to all of the servers, but for
 // now enable only connections to servers in to[].
 //
@@ -221,7 +221,7 @@ func (cfg *config) makeClient(to []int) *Clerk {
 }
 
 //
-//
+// delete a client
 //
 func (cfg *config) deleteClient(ck *Clerk) {
 	cfg.mu.Lock()
@@ -247,7 +247,7 @@ func (cfg *config) ConnectClientUnlocked(ck *Clerk, to []int) {
 }
 
 //
-//
+// connect a client
 //
 func (cfg *config) ConnectClient(ck *Clerk, to []int) {
 	cfg.mu.Lock()
@@ -268,7 +268,7 @@ func (cfg *config) DisconnectClientUnlocked(ck *Clerk, from []int) {
 }
 
 //
-//
+// disconnect a client
 //
 func (cfg *config) DisconnectClient(ck *Clerk, from []int) {
 	cfg.mu.Lock()
@@ -277,7 +277,7 @@ func (cfg *config) DisconnectClient(ck *Clerk, from []int) {
 }
 
 //
-// Shutdown a server by isolating it
+// shutdown a server by isolating it
 //
 func (cfg *config) ShutdownServer(i int) {
 	cfg.mu.Lock()
@@ -311,7 +311,7 @@ func (cfg *config) ShutdownServer(i int) {
 }
 
 //
-// If restart servers, first call ShutdownServer
+// ff restart servers, first call ShutdownServer
 //
 func (cfg *config) StartServer(i int) {
 	cfg.mu.Lock()
@@ -352,7 +352,7 @@ func (cfg *config) StartServer(i int) {
 }
 
 //
-//
+// if leader?
 //
 func (cfg *config) Leader() (bool, int) {
 	cfg.mu.Lock()
@@ -368,7 +368,7 @@ func (cfg *config) Leader() (bool, int) {
 }
 
 //
-// Partition servers into 2 groups and put current leader in minority
+// partition servers into 2 groups and put current leader in minority
 //
 func (cfg *config) make_partition() ([]int, []int) {
 	_, l := cfg.Leader()
@@ -392,7 +392,7 @@ func (cfg *config) make_partition() ([]int, []int) {
 var ncpu_once sync.Once
 
 //
-//
+// make config
 //
 func make_config(t *testing.T, tag string, n int, unreliable bool, maxraftstate int) *config {
 	ncpu_once.Do(func() {
