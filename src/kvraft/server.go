@@ -1,3 +1,8 @@
+//
+// reference:
+// https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/kvraft/server.go
+//
+
 package raftkv
 
 import (
@@ -163,7 +168,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 }
 
 //
-//
+// run RaftKV
 //
 func (kv *RaftKV) run() {
 	for {

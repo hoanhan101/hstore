@@ -1,9 +1,9 @@
-package raft
-
 //
 // reference:
 // https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go
 //
+
+package raft
 
 //
 // this is an outline of the API that raft must expose to
