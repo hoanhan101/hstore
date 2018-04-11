@@ -7,26 +7,37 @@ const (
 
 type Err string
 
-// Put or Append
+//
+// Put or Append structure
+//
 type PutAppendArgs struct {
-	Key   string
-	Value string
-	Op    string // "Put" or "Append"
-	// You'll have to add definitions here.
-	// Field names must start with capital letters,
-	// otherwise RPC will break.
+	Key       string
+	Value     string
+	Op        string // "Put" or "Append"
+    ClientID  int64
+    RequestID int
 }
 
+//
+// Put or Append reply structure
+//
 type PutAppendReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
+//
+// Get structure
+//
 type GetArgs struct {
-	Key string
-	// You'll have to add definitions here.
+	Key       string
+    ClientID  int64
+    RequestID int
 }
 
+//
+// Get reply structure
+//
 type GetReply struct {
 	WrongLeader bool
 	Err         Err

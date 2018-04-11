@@ -1,18 +1,21 @@
 package raftkv
 
-import "labrpc"
-import "testing"
-import "os"
+import (
+    "labrpc"
+    "testing"
+    "os"
+    crand "crypto/rand"
+    "math/rand"
+    "encoding/base64"
+    "sync"
+    "runtime"
+    "raft"
+    "fmt"
+)
 
-// import "log"
-import crand "crypto/rand"
-import "math/rand"
-import "encoding/base64"
-import "sync"
-import "runtime"
-import "raft"
-import "fmt"
-
+//
+//
+//
 func randstring(n int) string {
 	b := make([]byte, 2*n)
 	crand.Read(b)
@@ -20,7 +23,9 @@ func randstring(n int) string {
 	return s[0:n]
 }
 
+//
 // Randomize server handles
+//
 func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	sa := make([]*labrpc.ClientEnd, len(kvh))
 	copy(sa, kvh)
@@ -31,6 +36,9 @@ func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	return sa
 }
 
+//
+//
+//
 type config struct {
 	mu           sync.Mutex
 	t            *testing.T
@@ -45,6 +53,9 @@ type config struct {
 	maxraftstate int
 }
 
+//
+//
+//
 func (cfg *config) cleanup() {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -55,7 +66,9 @@ func (cfg *config) cleanup() {
 	}
 }
 
+//
 // Maximum log size across all servers
+//
 func (cfg *config) LogSize() int {
 	logsize := 0
 	for i := 0; i < cfg.n; i++ {
@@ -67,7 +80,9 @@ func (cfg *config) LogSize() int {
 	return logsize
 }
 
+//
 // Maximum snapshot size across all servers
+//
 func (cfg *config) SnapshotSize() int {
 	snapshotsize := 0
 	for i := 0; i < cfg.n; i++ {
@@ -79,8 +94,10 @@ func (cfg *config) SnapshotSize() int {
 	return snapshotsize
 }
 
+//
 // attach server i to servers listed in to
 // caller must hold cfg.mu
+//
 func (cfg *config) connectUnlocked(i int, to []int) {
 	// log.Printf("connect peer %d to %v\n", i, to)
 
@@ -97,14 +114,19 @@ func (cfg *config) connectUnlocked(i int, to []int) {
 	}
 }
 
+//
+//
+//
 func (cfg *config) connect(i int, to []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.connectUnlocked(i, to)
 }
 
+//
 // detach server i from the servers listed in from
 // caller must hold cfg.mu
+//
 func (cfg *config) disconnectUnlocked(i int, from []int) {
 	// log.Printf("disconnect peer %d from %v\n", i, from)
 
@@ -125,12 +147,18 @@ func (cfg *config) disconnectUnlocked(i int, from []int) {
 	}
 }
 
+//
+//
+//
 func (cfg *config) disconnect(i int, from []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.disconnectUnlocked(i, from)
 }
 
+//
+//
+//
 func (cfg *config) All() []int {
 	all := make([]int, cfg.n)
 	for i := 0; i < cfg.n; i++ {
@@ -139,6 +167,9 @@ func (cfg *config) All() []int {
 	return all
 }
 
+//
+//
+//
 func (cfg *config) ConnectAll() {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -147,7 +178,9 @@ func (cfg *config) ConnectAll() {
 	}
 }
 
+//
 // Sets up 2 partitions with connectivity between servers in each  partition.
+//
 func (cfg *config) partition(p1 []int, p2 []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -162,9 +195,11 @@ func (cfg *config) partition(p1 []int, p2 []int) {
 	}
 }
 
+//
 // Create a clerk with clerk specific server names.
 // Give it connections to all of the servers, but for
 // now enable only connections to servers in to[].
+//
 func (cfg *config) makeClient(to []int) *Clerk {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -185,6 +220,9 @@ func (cfg *config) makeClient(to []int) *Clerk {
 	return ck
 }
 
+//
+//
+//
 func (cfg *config) deleteClient(ck *Clerk) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -196,7 +234,9 @@ func (cfg *config) deleteClient(ck *Clerk) {
 	delete(cfg.clerks, ck)
 }
 
+//
 // caller should hold cfg.mu
+//
 func (cfg *config) ConnectClientUnlocked(ck *Clerk, to []int) {
 	// log.Printf("ConnectClient %v to %v\n", ck, to)
 	endnames := cfg.clerks[ck]
@@ -206,13 +246,18 @@ func (cfg *config) ConnectClientUnlocked(ck *Clerk, to []int) {
 	}
 }
 
+//
+//
+//
 func (cfg *config) ConnectClient(ck *Clerk, to []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.ConnectClientUnlocked(ck, to)
 }
 
+//
 // caller should hold cfg.mu
+//
 func (cfg *config) DisconnectClientUnlocked(ck *Clerk, from []int) {
 	// log.Printf("DisconnectClient %v from %v\n", ck, from)
 	endnames := cfg.clerks[ck]
@@ -222,13 +267,18 @@ func (cfg *config) DisconnectClientUnlocked(ck *Clerk, from []int) {
 	}
 }
 
+//
+//
+//
 func (cfg *config) DisconnectClient(ck *Clerk, from []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.DisconnectClientUnlocked(ck, from)
 }
 
+//
 // Shutdown a server by isolating it
+//
 func (cfg *config) ShutdownServer(i int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -260,7 +310,9 @@ func (cfg *config) ShutdownServer(i int) {
 	}
 }
 
+//
 // If restart servers, first call ShutdownServer
+//
 func (cfg *config) StartServer(i int) {
 	cfg.mu.Lock()
 
@@ -299,6 +351,9 @@ func (cfg *config) StartServer(i int) {
 	cfg.net.AddServer(i, srv)
 }
 
+//
+//
+//
 func (cfg *config) Leader() (bool, int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -312,7 +367,9 @@ func (cfg *config) Leader() (bool, int) {
 	return false, 0
 }
 
+//
 // Partition servers into 2 groups and put current leader in minority
+//
 func (cfg *config) make_partition() ([]int, []int) {
 	_, l := cfg.Leader()
 	p1 := make([]int, cfg.n/2+1)
@@ -334,6 +391,9 @@ func (cfg *config) make_partition() ([]int, []int) {
 
 var ncpu_once sync.Once
 
+//
+//
+//
 func make_config(t *testing.T, tag string, n int, unreliable bool, maxraftstate int) *config {
 	ncpu_once.Do(func() {
 		if runtime.NumCPU() < 2 {
