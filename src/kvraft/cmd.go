@@ -28,6 +28,13 @@ func (cmd *Command) Put(key string, value string) string {
 	return key
 }
 
+func (cmd *Command) Append(key string, value string) string {
+	cmd.clerk.Append(key, value)
+	fmt.Printf("Append(%v, %v)\n", key, value)
+
+	return key
+}
+
 func (cmd *Command) Get(key string) string {
 	result := cmd.clerk.Get(key)
 	fmt.Printf("Get(%v) -> %v\n", key, result)

@@ -26,7 +26,14 @@ func main() {
         if rawString[0] == "GET" {
             user.Get(rawString[1])
         } else if rawString[0] == "PUT" {
-            user.Put(rawString[1], rawString[2])
+            if len(rawString) != 3 || rawString[2] == "" {
+                fmt.Println("Cannot PUT empty value")
+                continue
+            } else {
+                user.Put(rawString[1], rawString[2])
+            }
+        } else if rawString[0] == "APPEND" {
+            user.Append(rawString[1], rawString[2])
         } else {
             fmt.Println("Not supported method")
         }
