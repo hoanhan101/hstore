@@ -14,7 +14,6 @@ import (
 //
 type cmdConfig struct {
 	mu           sync.Mutex
-	tag          string
 	net          *labrpc.Network
 	n            int
 	kvservers    []*RaftKV
@@ -366,7 +365,7 @@ var cmd_ncpu_once sync.Once
 //
 // make cmdConfig
 //
-func makeCmdConfig(tag string, n int, unreliable bool, maxraftstate int) *cmdConfig {
+func makeCmdConfig(n int, maxraftstate int) *cmdConfig {
 	cmd_ncpu_once.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
@@ -374,7 +373,6 @@ func makeCmdConfig(tag string, n int, unreliable bool, maxraftstate int) *cmdCon
 	})
 	runtime.GOMAXPROCS(4)
 	cfg := &cmdConfig{}
-	cfg.tag = tag
 	cfg.net = labrpc.MakeNetwork()
 	cfg.n = n
 	cfg.kvservers = make([]*RaftKV, cfg.n)
@@ -390,8 +388,6 @@ func makeCmdConfig(tag string, n int, unreliable bool, maxraftstate int) *cmdCon
 	}
 
 	cfg.ConnectAll()
-
-	cfg.net.Reliable(!unreliable)
 
 	return cfg
 }

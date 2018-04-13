@@ -4,14 +4,15 @@ import (
 	"fmt"
 )
 
-const nservers = 5
-
 type Command struct {
 	clerk *Clerk
 }
 
-func (cmd *Command) Setup(tag string, unreliable bool, crash bool, partitions bool, maxraftstate int) *Clerk {
-	cfg := makeCmdConfig(tag, nservers, unreliable, maxraftstate)
+//
+// Simple setup without log compaction
+//
+func (cmd *Command) Setup(nservers int) *Clerk {
+	cfg := makeCmdConfig(nservers, -1)
 	fmt.Printf("Boot up with %v servers\n", nservers)
 
 	ck := cfg.makeClient(cfg.All())
