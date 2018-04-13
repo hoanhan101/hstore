@@ -12,8 +12,8 @@ Other parts will be updated as soon as it is live and ready.
 
 - [x] Implement Raft Consensus Algorithm
 - [x] Implement Fault-tolerant Key-Value Service
-- [x] Make simple client's Stdin
-- [ ] Make CLI
+- [x] Make a simple client's stdin
+- [ ] Make CLI for server and client
 
 ## Table of Contents
 - [Getting Started](#getting-started)
