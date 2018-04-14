@@ -13,7 +13,7 @@ Other parts will be updated as soon as it is live and ready.
 - [x] Implement Raft Consensus Algorithm
 - [x] Implement Fault-tolerant Key-Value Service
 - [x] Build a simple client's stdin
-- [ ] Create RESTful APIs?
+- [ ] Create RESTful APIs
 - [ ] Make CLI for server and client
 
 ## Table of Contents
@@ -57,6 +57,12 @@ to run tests for different programs. If not, here is
 
 ### [kvraft](src/kvraft)
 
+**kvraft** is a fault-tolerant key-value storage service built on top of Raft. It is a replicated
+state machine, consisting of several key-value servers that coordinate their activities through
+the Raft log. It should continue to process client requests as long as a majority of the servers
+are alive and can communicate, in spite of other failures or network partitions.
+
+One can test the program by running:
 ```
 $ cd hstore
 $ export "GOPATH=$PWD" 
@@ -64,7 +70,7 @@ $ cd "$GOPATH/src/kvraft"
 $ go test
 ```
 
-Here is an example output:
+Here is an example of test's output:
 ```
 Test: One client ...
   ... Passed
@@ -114,6 +120,11 @@ ok      kvraft  535.876s
 
 ### [raft](src/raft)
 
+**raft** is a replicated state machine protocol. It achieves fault tolerance by storing copies of
+its data on multiple replica servers. Replication allows the service to continue operating even if
+some of its servers experience failures.
+
+One can test the program by running:
 ```
 $ cd hstore
 $ export "GOPATH=$PWD" 
@@ -132,7 +143,7 @@ One can also check how much real time and CPU time with the `time` command:
 time go test
 ```
 
-Here is an example output:
+Here is an example of test's output:
 ```
 Test (2A): initial election ...
   ... Passed
@@ -175,6 +186,13 @@ go test  76.76s user 17.07s system 46% cpu 3:23.92 total
 
 ### [mapreduce](src/mapreduce)
 
+By MapReduce's white paper:
+> MapReduce is a programming model and an associated implementation for processing and generating 
+> large data sets. Users specify a map function that processes a key/value pair to generate a set
+> of intermediate key/value pairs, and a reduce function that merges all intermediate values 
+> associated with the same intermediate key.
+
+One can test the program by running:
 ```
 $ cd hstore
 $ export "GOPATH=$PWD" 
@@ -182,6 +200,9 @@ $ cd "$GOPATH/src/mapreduce"
 $ go test -run Sequential
 $ go test -run TestBasic
 ```
+
+- `go test -run Sequential` runs the map and reduce tasks one at a time 
+- `go test -run TestBasic` runs the map and reduce tasks in parallel 
 
 To give more verbose output, set `debugEnabled = true` in
 [common.go](src/mapreduce/common.go), and add `-v` to the test command above. 
@@ -193,6 +214,10 @@ $ go test -v -run TestBasic
 
 ### [word-count](src/main/wc.go)
 
+**word count** is a simple MapReduce example. It reports the number of occurrences of each word 
+in its input.
+
+One can test the program by running:
 ```
 $ cd hstore
 $ export "GOPATH=$PWD"
