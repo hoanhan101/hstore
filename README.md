@@ -19,15 +19,15 @@ Other parts will be updated as soon as it is live and ready.
 
 ### Ideas
 
+- [ ] Expose server/client's host and port -> RESTful APIs
+- [ ] Start a RaftKV server on by one and watch the leader election happen in real time
+- [ ] Configurations
+- [ ] Make Persister write Raft's snapshot to disk 
 - [ ] Dockerize + automate build
 - [ ] Continuous Integration and Delivery
 - [ ] Godoc 
 - [ ] Go report
 - [ ] Code coverage 
-- [ ] Start a RaftKV server on by one and watch the leader election happen in real time.
-- [ ] Make Persister write Raft's snapshot to disk 
-- [ ] Expose server/client's host and port -> RESTful APIs
-- [ ] Configurations
 
 ## Table of Contents
 - [Getting Started](#getting-started)
