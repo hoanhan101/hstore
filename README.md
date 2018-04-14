@@ -17,6 +17,7 @@ Other parts will be updated as soon as it is live and ready.
 - [x] Implement Raft Consensus Algorithm
 - [x] Implement Fault-tolerant Key-Value Service
 - [x] Build a simple client's stdin
+- [x] Add Go report card
 - [ ] Make CLI for server and client
 
 ### Ideas
@@ -28,7 +29,6 @@ Other parts will be updated as soon as it is live and ready.
 - [ ] Dockerize + automate build
 - [ ] Continuous Integration and Delivery
 - [ ] Godoc 
-- [ ] Go report
 - [ ] Code coverage 
 
 ## Table of Contents
