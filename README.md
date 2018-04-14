@@ -10,11 +10,24 @@ of Raft, a replicated state machine protocol.
 It is still a work-in-progress. Here is the initial project's [proposal](PROPOSAL.md).
 Other parts will be updated as soon as it is live and ready.
 
+### Tasks
+
 - [x] Implement Raft Consensus Algorithm
 - [x] Implement Fault-tolerant Key-Value Service
 - [x] Build a simple client's stdin
-- [ ] Create RESTful APIs
 - [ ] Make CLI for server and client
+
+### Ideas
+
+- [ ] Dockerize + automate build
+- [ ] Continuous Integration and Delivery
+- [ ] Godoc 
+- [ ] Go report
+- [ ] Code coverage 
+- [ ] Start a RaftKV server on by one and watch the leader election happen in real time.
+- [ ] Make Persister write Raft's snapshot to disk 
+- [ ] Expose server/client's host and port -> RESTful APIs
+- [ ] Configurations
 
 ## Table of Contents
 - [Getting Started](#getting-started)
