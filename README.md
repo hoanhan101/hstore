@@ -9,7 +9,7 @@ of Raft, a replicated state machine protocol.
 
 ## Project Status
 
-It is still a work-in-progress. Here is the initial project's [proposal](PROPOSAL.md).
+It is still a work in progress. Here is the initial project's [proposal](PROPOSAL.md).
 Other parts will be updated as soon as it is live and ready.
 
 ### Tasks
