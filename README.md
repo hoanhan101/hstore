@@ -1,5 +1,7 @@
 # hstore
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/hoanhan101/hstore)](https://goreportcard.com/report/github.com/hoanhan101/hstore)
+
 **hstore** is a fault-tolerant distributed key-value store inspired by
 [MIT's 6.824: Distributed System Spring 2017 Lab](http://nil.csail.mit.edu/6.824/2017/).
 The goal of the project is to build a simple, fast and reliable database on top
