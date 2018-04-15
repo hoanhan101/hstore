@@ -70,6 +70,9 @@ Assume that user set the `GOPATH` correctly, one can follow these instructions
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
 
+> User can also run `bash run_6824.sh` to test Raft and KVRaft at the same time and skip the rest
+> of this section. More details are provided below.
+
 ### [kvraft](src/kvraft)
 
 **kvraft** is a fault-tolerant key-value storage service built on top of Raft. It is a replicated
