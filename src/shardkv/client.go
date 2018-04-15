@@ -38,7 +38,7 @@ func nrand() int64 {
 type Clerk struct {
 	sm       *shardmaster.Clerk
 	config   shardmaster.Config
-	make_end func(string) *labrpc.ClientEnd
+	makeEnd func(string) *labrpc.ClientEnd
 	// You will have to modify this struct.
 }
 
@@ -46,13 +46,13 @@ type Clerk struct {
 //
 // masters[] is needed to call shardmaster.MakeClerk().
 //
-// make_end(servername) turns a server name from a
+// makeEnd(servername) turns a server name from a
 // Config.Groups[gid][i] into a labrpc.ClientEnd on which you can
 // send RPCs.
-func MakeClerk(masters []*labrpc.ClientEnd, make_end func(string) *labrpc.ClientEnd) *Clerk {
+func MakeClerk(masters []*labrpc.ClientEnd, makeEnd func(string) *labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.sm = shardmaster.MakeClerk(masters)
-	ck.make_end = make_end
+	ck.makeEnd = makeEnd
 	// You'll have to add code here.
 	return ck
 }
@@ -71,7 +71,7 @@ func (ck *Clerk) Get(key string) string {
 		if servers, ok := ck.config.Groups[gid]; ok {
 			// try each server for the shard.
 			for si := 0; si < len(servers); si++ {
-				srv := ck.make_end(servers[si])
+				srv := ck.makeEnd(servers[si])
 				var reply GetReply
 				ok := srv.Call("ShardKV.Get", &args, &reply)
 				if ok && reply.WrongLeader == false && (reply.Err == OK || reply.Err == ErrNoKey) {
@@ -103,7 +103,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 		gid := ck.config.Shards[shard]
 		if servers, ok := ck.config.Groups[gid]; ok {
 			for si := 0; si < len(servers); si++ {
-				srv := ck.make_end(servers[si])
+				srv := ck.makeEnd(servers[si])
 				var reply PutAppendReply
 				ok := srv.Call("ShardKV.PutAppend", &args, &reply)
 				if ok && reply.WrongLeader == false && reply.Err == OK {

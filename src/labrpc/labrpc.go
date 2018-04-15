@@ -61,7 +61,7 @@ import (
 	"time"
 )
 
-// Request Message structure
+// redMsg structure for requesting message
 type reqMsg struct {
 	endname  interface{} // name of sending ClientEnd
 	svcMeth  string      // e.g. "Raft.AppendEntries"
@@ -70,7 +70,7 @@ type reqMsg struct {
 	replyCh  chan replyMsg
 }
 
-// Reply Message structure
+// replyMsg structure for reply message
 type replyMsg struct {
 	ok    bool
 	reply []byte
@@ -82,8 +82,8 @@ type ClientEnd struct {
 	ch      chan reqMsg // copy of Network.endCh
 }
 
-// Call() send an RPC, wait for the reply.
-// the return value indicates success; false means that
+// Call sends an RPC, waits for the reply.
+// The return value indicates success; false means that
 // no reply was received from the server.
 func (e *ClientEnd) Call(svcMeth string, args interface{}, reply interface{}) bool {
 	req := reqMsg{}
@@ -125,7 +125,7 @@ type Network struct {
 	endCh          chan reqMsg
 }
 
-// MakeNetwork()
+// MakeNetwork initializes Network object
 func MakeNetwork() *Network {
 	rn := &Network{}
 	rn.reliable = true
@@ -145,7 +145,7 @@ func MakeNetwork() *Network {
 	return rn
 }
 
-// Make Reliable
+// Reliable or not
 func (rn *Network) Reliable(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -153,7 +153,7 @@ func (rn *Network) Reliable(yes bool) {
 	rn.reliable = yes
 }
 
-// Make LongReordering
+// LongReordering or not
 func (rn *Network) LongReordering(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -161,7 +161,7 @@ func (rn *Network) LongReordering(yes bool) {
 	rn.longReordering = yes
 }
 
-// Make LongDelays
+// LongDelays or not
 func (rn *Network) LongDelays(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -169,7 +169,7 @@ func (rn *Network) LongDelays(yes bool) {
 	rn.longDelays = yes
 }
 
-// ReadEndnameInfo() reads ClientEnd name information
+// ReadEndnameInfo reads ClientEnd name information
 func (rn *Network) ReadEndnameInfo(endname interface{}) (enabled bool,
 	servername interface{}, server *Server, reliable bool, longreordering bool,
 ) {
@@ -186,7 +186,7 @@ func (rn *Network) ReadEndnameInfo(endname interface{}) (enabled bool,
 	return
 }
 
-// Check if server is dead
+// IsServerDead checks if a server is dead
 func (rn *Network) IsServerDead(endname interface{}, servername interface{}, server *Server) bool {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -197,7 +197,7 @@ func (rn *Network) IsServerDead(endname interface{}, servername interface{}, ser
 	return false
 }
 
-// Process Request
+// ProcessReq processes request message
 func (rn *Network) ProcessReq(req reqMsg) {
 	enabled, servername, server, reliable, longreordering := rn.ReadEndnameInfo(req.endname)
 
@@ -279,8 +279,8 @@ func (rn *Network) ProcessReq(req reqMsg) {
 
 }
 
-// MakeEnd() create a client end-point.
-// start the thread that listens and delivers.
+// MakeEnd creates a client end-point.
+// Start the thread that listens and delivers.
 func (rn *Network) MakeEnd(endname interface{}) *ClientEnd {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -299,7 +299,7 @@ func (rn *Network) MakeEnd(endname interface{}) *ClientEnd {
 	return e
 }
 
-// AddServer() add a server
+// AddServer adds a server to the network
 func (rn *Network) AddServer(servername interface{}, rs *Server) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -307,7 +307,7 @@ func (rn *Network) AddServer(servername interface{}, rs *Server) {
 	rn.servers[servername] = rs
 }
 
-// DeleteServer delete a server
+// DeleteServer deletes a server in the network
 func (rn *Network) DeleteServer(servername interface{}) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -315,8 +315,8 @@ func (rn *Network) DeleteServer(servername interface{}) {
 	rn.servers[servername] = nil
 }
 
-// Connect a ClientEnd to a server.
-// a ClientEnd can only be connected once in its lifetime.
+// Connect connects a ClientEnd to a server.
+// A ClientEnd can only be connected once in its lifetime.
 func (rn *Network) Connect(endname interface{}, servername interface{}) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -324,7 +324,7 @@ func (rn *Network) Connect(endname interface{}, servername interface{}) {
 	rn.connections[endname] = servername
 }
 
-// Enable/disable a ClientEnd.
+// Enable a ClientEnd.
 func (rn *Network) Enable(endname interface{}, enabled bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -332,7 +332,7 @@ func (rn *Network) Enable(endname interface{}, enabled bool) {
 	rn.enabled[endname] = enabled
 }
 
-// Get a server's count of incoming RPCs.
+// GetCount of RPCs.
 func (rn *Network) GetCount(servername interface{}) int {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -341,7 +341,7 @@ func (rn *Network) GetCount(servername interface{}) int {
 	return svr.GetCount()
 }
 
-// A Server is a collection of services, all sharing
+// Server is a collection of services, all sharing
 // the same rpc dispatcher. so that e.g. both a Raft
 // and a k/v server can listen to the same rpc endpoint.
 type Server struct {
@@ -350,21 +350,21 @@ type Server struct {
 	count    int // incoming RPCs
 }
 
-// Make a Server
+// MakeServer initialize a Server object
 func MakeServer() *Server {
 	rs := &Server{}
 	rs.services = map[string]*Service{}
 	return rs
 }
 
-// Add a service
+// AddService to a Server
 func (rs *Server) AddService(svc *Service) {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 	rs.services[svc.name] = svc
 }
 
-// Dispatch message
+// dispatch request message
 func (rs *Server) dispatch(req reqMsg) replyMsg {
 	rs.mu.Lock()
 
@@ -392,7 +392,7 @@ func (rs *Server) dispatch(req reqMsg) replyMsg {
 	}
 }
 
-// Get server count
+// GetCount return number of servers
 func (rs *Server) GetCount() int {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
@@ -408,6 +408,7 @@ type Service struct {
 	methods map[string]reflect.Method
 }
 
+// MakeService initializes a Service object
 func MakeService(rcvr interface{}) *Service {
 	svc := &Service{}
 	svc.typ = reflect.TypeOf(rcvr)
@@ -439,7 +440,7 @@ func MakeService(rcvr interface{}) *Service {
 	return svc
 }
 
-// Dispatch a service
+// dispatch a service
 func (svc *Service) dispatch(methname string, req reqMsg) replyMsg {
 	if method, ok := svc.methods[methname]; ok {
 		// prepare space into which to read the argument.

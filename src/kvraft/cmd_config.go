@@ -330,8 +330,8 @@ func (cfg *cmdConfig) Leader() (bool, int) {
 	defer cfg.mu.Unlock()
 
 	for i := 0; i < cfg.n; i++ {
-		_, is_leader := cfg.kvservers[i].rf.GetState()
-		if is_leader {
+		_, isLeader := cfg.kvservers[i].rf.GetState()
+		if isLeader {
 			return true, i
 		}
 	}
@@ -341,7 +341,7 @@ func (cfg *cmdConfig) Leader() (bool, int) {
 //
 // partition servers into 2 groups and put current leader in minority
 //
-func (cfg *cmdConfig) make_partition() ([]int, []int) {
+func (cfg *cmdConfig) makePartition() ([]int, []int) {
 	_, l := cfg.Leader()
 	p1 := make([]int, cfg.n/2+1)
 	p2 := make([]int, cfg.n/2)
@@ -360,13 +360,13 @@ func (cfg *cmdConfig) make_partition() ([]int, []int) {
 	return p1, p2
 }
 
-var cmd_ncpu_once sync.Once
+var cmdNcpuOnce sync.Once
 
 //
 // make cmdConfig
 //
 func makeCmdConfig(n int, maxraftstate int) *cmdConfig {
-	cmd_ncpu_once.Do(func() {
+	cmdNcpuOnce.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
 		}

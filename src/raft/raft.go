@@ -36,8 +36,8 @@ const (
 	LEADER
 )
 
-// Apply Message structure
-// as each Raft peer becomes aware that successive logs entries are
+// ApplyMsg structure
+// As each Raft peer becomes aware that successive logs entries are
 // committed, the peer should send an ApplyMsg to the service (or
 // tester) on the same server, via the applyCh passed to Make().
 type ApplyMsg struct {
@@ -47,14 +47,14 @@ type ApplyMsg struct {
 	Snapshot    []byte
 }
 
-// Log Entry structure
+// LogEntry structure
 type LogEntry struct {
 	Index   int
 	Term    int
 	Command interface{}
 }
 
-// A Go object implementing a single Raft peer.
+// Raft peer structure 
 type Raft struct {
 	mu        sync.Mutex          // Lock to protect shared access to this peer's state
 	peers     []*labrpc.ClientEnd // RPC end points of all peers
@@ -88,8 +88,7 @@ type Raft struct {
 	applyCh     chan ApplyMsg
 }
 
-// GetState() return currentTerm and whether this server
-// believes it is the leader.
+// GetState returns currentTerm and whether this server believes it is the leader.
 func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isLeader bool
@@ -102,12 +101,12 @@ func (rf *Raft) GetState() (int, bool) {
 	return term, isLeader
 }
 
-// GetPersisterSize() return RaftStateSize in int
+// GetPersisterSize returns RaftStateSize in integer
 func (rf *Raft) GetPersistSize() int {
 	return rf.persister.RaftStateSize()
 }
 
-// persist() save Raft's persistent state to stable storage,
+// persist saves Raft's persistent state to stable storage,
 // where it can later be retrieved after a crash and restart.
 // see paper's Figure 2 for a description of what should be persistent.
 func (rf *Raft) persist() {
@@ -120,7 +119,7 @@ func (rf *Raft) persist() {
 	rf.persister.SaveRaftState(data)
 }
 
-// readPersistdata restore previously persisted state.
+// readPersistdata restores previously persisted state.
 func (rf *Raft) readPersist(data []byte) {
 	if data == nil || len(data) < 1 {
 		return
@@ -133,7 +132,7 @@ func (rf *Raft) readPersist(data []byte) {
 	d.Decode(&rf.logs)
 }
 
-// InstallSnapshot RPC argument structure
+// InstallSnapshotArgs RPC structure
 type InstallSnapshotArgs struct {
 	Term             int    // leader's term
 	LeaderID         int    // so follower can redirect clients
@@ -142,12 +141,12 @@ type InstallSnapshotArgs struct {
 	Data             []byte // raw bytes of the snapshot chunk, starting at offset
 }
 
-// InstallSnapshot RPC reply structure
+// InstallSnapshotReply RPC structure
 type InstallSnapshotReply struct {
 	Term int // currentTerm, for leader to update itself
 }
 
-// TruncateLogs drop unnecessary logs
+// TruncateLogs drops unnecessary logs
 func (rf *Raft) TruncateLogs(lastIndex int, lastTerm int) {
 	ind := -1
 	first := LogEntry{Index: lastIndex, Term: lastTerm}
@@ -166,7 +165,7 @@ func (rf *Raft) TruncateLogs(lastIndex int, lastTerm int) {
 	return
 }
 
-// Read Snapshot data
+// readSnapshot reads a list of byte data
 func (rf *Raft) readSnapshot(data []byte) {
 	rf.readPersist(rf.persister.ReadRaftState())
 
@@ -243,7 +242,7 @@ func (rf *Raft) InstallSnapshot(args InstallSnapshotArgs, reply *InstallSnapshot
 	}
 }
 
-// Send InstallSnapshot RPC to a server
+// sendSnapshot RPC to a server
 func (rf *Raft) sendSnapshot(server int, args InstallSnapshotArgs, reply *InstallSnapshotReply) bool {
 	ok := rf.peers[server].Call("Raft.InstallSnapshot", args, reply)
 
@@ -291,7 +290,7 @@ func (rf *Raft) StartSnapshot(snapshot []byte, index int) {
 	rf.persister.SaveSnapshot(data)
 }
 
-// AppendEntries RPC argument structure
+// AppendEntriesArgs RPC structure
 type AppendEntriesArgs struct {
 	Term         int        // leader's term
 	LeaderID     int        // so follower can redirect clients
@@ -301,7 +300,7 @@ type AppendEntriesArgs struct {
 	LeaderCommit int        // leader's commitIndex
 }
 
-// AppendEntries RPC reply structure
+// AppendEntriesReply RPC structure
 type AppendEntriesReply struct {
 	Term      int  // currentTerm, for leader to update itself
 	Success   bool // true if follower contained entry matching prevLogIndex and prevLogTerm
@@ -392,7 +391,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	return
 }
 
-// Send AppendEntries RPC to a server
+// sendAppendEntries RPC to a server
 func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", &args, reply)
 
@@ -426,7 +425,7 @@ func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *App
 	return ok
 }
 
-// Broadcast AppendEntries
+// broadcaseAppendEntries sends RPCs to all peers
 func (rf *Raft) broadcastAppendEntries() {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -499,7 +498,7 @@ func (rf *Raft) broadcastAppendEntries() {
 	}
 }
 
-// RequestVote RPC argument structure
+// RequestVoteArgs RPC structure
 type RequestVoteArgs struct {
 	Term         int // candidate's term
 	CandidateID  int // candidate requesting vote
@@ -507,13 +506,13 @@ type RequestVoteArgs struct {
 	LastLogTerm  int // term of candidate's last log entry
 }
 
-// RequestVote RPC reply structure
+// RequestVoteReply RPC structure
 type RequestVoteReply struct {
 	Term        int  // currentTerm, for candidate to update itself
 	VoteGranted bool // true means candidate received vote
 }
 
-// RequestVote RPC handler.
+// RequestVote RPC handler
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -554,17 +553,17 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	return
 }
 
-// Get last index
+// getLastIndex returns logs last index
 func (rf *Raft) getLastIndex() int {
 	return rf.logs[len(rf.logs)-1].Index
 }
 
-// Get last term
+// getLastTerm returns last index's term
 func (rf *Raft) getLastTerm() int {
 	return rf.logs[len(rf.logs)-1].Term
 }
 
-// Check if term is up-to-date
+// isUptoDate checks if term is up-to-date
 func (rf *Raft) isUptoDate(candIndex int, candTerm int) bool {
 	term, index := rf.getLastTerm(), rf.getLastIndex()
 
@@ -639,7 +638,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	return ok
 }
 
-// Broadcast RequestVote
+// broadcastRequestVote to all peers
 func (rf *Raft) broadcastRequestVote() {
 	var args RequestVoteArgs
 	rf.mu.Lock()
@@ -670,8 +669,7 @@ func (rf *Raft) broadcastRequestVote() {
 	}
 }
 
-//
-// the service using Raft (e.g. a k/v server) wants to start
+// Start the service using Raft (e.g. a k/v server) wants to start
 // agreement on the next command to be appended to Raft's logs. if this
 // server isn't the leader, returns false. otherwise start the
 // agreement and return immediately. there is no guarantee that this
@@ -682,7 +680,6 @@ func (rf *Raft) broadcastRequestVote() {
 // if it's ever committed. the second return value is the current
 // term. the third return value is true if this server believes it is
 // the leader.
-//
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -752,7 +749,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	return rf
 }
 
-// Kick off Leader Election process
+// run kicks off Leader Election process
 func (rf *Raft) run() {
 	for {
 		rf.mu.Lock()
@@ -804,7 +801,7 @@ func (rf *Raft) run() {
 	}
 }
 
-// Kick off Log Replication process
+// commitLogs kicks off Log Replication process
 func (rf *Raft) commitLogs() {
 	for {
 		select {
