@@ -4,16 +4,20 @@ package shardmaster
 // Shardmaster clerk.
 //
 
-import "labrpc"
-import "time"
-import "crypto/rand"
-import "math/big"
+import (
+	"crypto/rand"
+	"labrpc"
+	"math/big"
+	"time"
+)
 
+// Clerk structure
 type Clerk struct {
 	servers []*labrpc.ClientEnd
 	// Your data here.
 }
 
+// Generate random string
 func nrand() int64 {
 	max := big.NewInt(int64(1) << 62)
 	bigx, _ := rand.Int(rand.Reader, max)
@@ -21,6 +25,7 @@ func nrand() int64 {
 	return x
 }
 
+// MakeClerk create a Clerk instance
 func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
@@ -28,6 +33,7 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	return ck
 }
 
+// Query Group
 func (ck *Clerk) Query(num int) Config {
 	args := &QueryArgs{}
 	// Your code here.
@@ -45,6 +51,7 @@ func (ck *Clerk) Query(num int) Config {
 	}
 }
 
+// Join Group
 func (ck *Clerk) Join(servers map[int][]string) {
 	args := &JoinArgs{}
 	// Your code here.
@@ -63,6 +70,7 @@ func (ck *Clerk) Join(servers map[int][]string) {
 	}
 }
 
+// Leave Group
 func (ck *Clerk) Leave(gids []int) {
 	args := &LeaveArgs{}
 	// Your code here.
@@ -81,6 +89,7 @@ func (ck *Clerk) Leave(gids []int) {
 	}
 }
 
+// Move Group
 func (ck *Clerk) Move(shard int, gid int) {
 	args := &MoveArgs{}
 	// Your code here.

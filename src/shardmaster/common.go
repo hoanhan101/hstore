@@ -31,44 +31,54 @@ type Config struct {
 	Groups map[int][]string // gid -> servers[]
 }
 
+// Constant
 const (
 	OK = "OK"
 )
 
+// Error string
 type Err string
 
+// Join Argument structure
 type JoinArgs struct {
 	Servers map[int][]string // new GID -> servers mappings
 }
 
+// Join Reply structure
 type JoinReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
+// Leave Argument structure
 type LeaveArgs struct {
 	GIDs []int
 }
 
+// Leave Reply structure
 type LeaveReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
+// Move Arguement structure
 type MoveArgs struct {
 	Shard int
 	GID   int
 }
 
+// Move Reply structure
 type MoveReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
+// Query Argument structure
 type QueryArgs struct {
 	Num int // desired config number
 }
 
+// Query Reply structure
 type QueryReply struct {
 	WrongLeader bool
 	Err         Err

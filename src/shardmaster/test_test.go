@@ -6,6 +6,7 @@ import (
 	"testing"
 )
 
+// General checking
 func check(t *testing.T, groups []int, ck *Clerk) {
 	c := ck.Query(-1)
 	if len(c.Groups) != len(groups) {
@@ -50,6 +51,7 @@ func check(t *testing.T, groups []int, ck *Clerk) {
 	}
 }
 
+// Check if same config
 func check_same_config(t *testing.T, c1 Config, c2 Config) {
 	if c1.Num != c2.Num {
 		t.Fatalf("Num wrong")
@@ -75,6 +77,7 @@ func check_same_config(t *testing.T, c1 Config, c2 Config) {
 	}
 }
 
+// Test Basic
 func TestBasic(t *testing.T) {
 	const nservers = 3
 	cfg := make_config(t, nservers, false)
@@ -246,6 +249,7 @@ func TestBasic(t *testing.T) {
 	fmt.Printf("  ... Passed\n")
 }
 
+// Test multiple servers
 func TestMulti(t *testing.T) {
 	const nservers = 3
 	cfg := make_config(t, nservers, false)

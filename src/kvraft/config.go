@@ -13,9 +13,7 @@ import (
 	"testing"
 )
 
-//
-// make a random string
-//
+// Generate a random string
 func randstring(n int) string {
 	b := make([]byte, 2*n)
 	crand.Read(b)
@@ -23,9 +21,7 @@ func randstring(n int) string {
 	return s[0:n]
 }
 
-//
-// randomize server handles
-//
+// Randomize server handles
 func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	sa := make([]*labrpc.ClientEnd, len(kvh))
 	copy(sa, kvh)
@@ -36,9 +32,7 @@ func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	return sa
 }
 
-//
-// config structure
-//
+// Config structure
 type config struct {
 	mu           sync.Mutex
 	t            *testing.T
@@ -53,9 +47,7 @@ type config struct {
 	maxraftstate int
 }
 
-//
-// clean up config
-//
+// Clean up config
 func (cfg *config) cleanup() {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -66,9 +58,7 @@ func (cfg *config) cleanup() {
 	}
 }
 
-//
-// return maximum log size across all servers
-//
+// LogSize() return maximum log size across all servers
 func (cfg *config) LogSize() int {
 	logsize := 0
 	for i := 0; i < cfg.n; i++ {
@@ -80,9 +70,7 @@ func (cfg *config) LogSize() int {
 	return logsize
 }
 
-//
-// return maximum snapshot size across all servers
-//
+// SnapshotSize() return maximum snapshot size across all servers
 func (cfg *config) SnapshotSize() int {
 	snapshotsize := 0
 	for i := 0; i < cfg.n; i++ {
@@ -94,10 +82,8 @@ func (cfg *config) SnapshotSize() int {
 	return snapshotsize
 }
 
-//
-// attach server i to servers listed in to
+// Attach server i to servers listed in to
 // caller must hold cfg.mu
-//
 func (cfg *config) connectUnlocked(i int, to []int) {
 	// log.Printf("connect peer %d to %v\n", i, to)
 
@@ -114,19 +100,15 @@ func (cfg *config) connectUnlocked(i int, to []int) {
 	}
 }
 
-//
-// connect server
-//
+// Connect server
 func (cfg *config) connect(i int, to []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.connectUnlocked(i, to)
 }
 
-//
-// detach server i from the servers listed in from
+// Detach server i from the servers listed in from
 // caller must hold cfg.mu
-//
 func (cfg *config) disconnectUnlocked(i int, from []int) {
 	// log.Printf("disconnect peer %d from %v\n", i, from)
 
@@ -147,18 +129,14 @@ func (cfg *config) disconnectUnlocked(i int, from []int) {
 	}
 }
 
-//
-// disconnect server
-//
+// Disconnect server
 func (cfg *config) disconnect(i int, from []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.disconnectUnlocked(i, from)
 }
 
-//
-// return all config servers
-//
+// All() return all config servers
 func (cfg *config) All() []int {
 	all := make([]int, cfg.n)
 	for i := 0; i < cfg.n; i++ {
@@ -167,9 +145,7 @@ func (cfg *config) All() []int {
 	return all
 }
 
-//
-// connect all servers
-//
+// ConnectAll() connect all servers
 func (cfg *config) ConnectAll() {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -178,9 +154,7 @@ func (cfg *config) ConnectAll() {
 	}
 }
 
-//
-// set up 2 partitions with connectivity between servers in each  partition.
-//
+// Set up 2 partitions with connectivity between servers in each  partition.
 func (cfg *config) partition(p1 []int, p2 []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -195,11 +169,9 @@ func (cfg *config) partition(p1 []int, p2 []int) {
 	}
 }
 
-//
-// create a clerk with clerk specific server names.
+// Create a clerk with clerk specific server names.
 // Give it connections to all of the servers, but for
 // now enable only connections to servers in to[].
-//
 func (cfg *config) makeClient(to []int) *Clerk {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -220,9 +192,7 @@ func (cfg *config) makeClient(to []int) *Clerk {
 	return ck
 }
 
-//
-// delete a client
-//
+// Delete a client
 func (cfg *config) deleteClient(ck *Clerk) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -234,9 +204,7 @@ func (cfg *config) deleteClient(ck *Clerk) {
 	delete(cfg.clerks, ck)
 }
 
-//
-// caller should hold cfg.mu
-//
+// ConnectClientUnlocked: caller should hold cfg.mu
 func (cfg *config) ConnectClientUnlocked(ck *Clerk, to []int) {
 	// log.Printf("ConnectClient %v to %v\n", ck, to)
 	endnames := cfg.clerks[ck]
@@ -246,18 +214,14 @@ func (cfg *config) ConnectClientUnlocked(ck *Clerk, to []int) {
 	}
 }
 
-//
-// connect a client
-//
+// ConnectClient connect a client to a group of peers
 func (cfg *config) ConnectClient(ck *Clerk, to []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.ConnectClientUnlocked(ck, to)
 }
 
-//
-// caller should hold cfg.mu
-//
+// DisconnectClientUnlocked: caller should hold cfg.mu
 func (cfg *config) DisconnectClientUnlocked(ck *Clerk, from []int) {
 	// log.Printf("DisconnectClient %v from %v\n", ck, from)
 	endnames := cfg.clerks[ck]
@@ -267,18 +231,14 @@ func (cfg *config) DisconnectClientUnlocked(ck *Clerk, from []int) {
 	}
 }
 
-//
-// disconnect a client
-//
+// DisconnectClient
 func (cfg *config) DisconnectClient(ck *Clerk, from []int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
 	cfg.DisconnectClientUnlocked(ck, from)
 }
 
-//
-// shutdown a server by isolating it
-//
+// ShutdownServer by isolating it
 func (cfg *config) ShutdownServer(i int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -310,9 +270,7 @@ func (cfg *config) ShutdownServer(i int) {
 	}
 }
 
-//
-// ff restart servers, first call ShutdownServer
-//
+// StartServer restart servers, first call ShutdownServer
 func (cfg *config) StartServer(i int) {
 	cfg.mu.Lock()
 
@@ -351,9 +309,7 @@ func (cfg *config) StartServer(i int) {
 	cfg.net.AddServer(i, srv)
 }
 
-//
-// if leader?
-//
+// Leader or not
 func (cfg *config) Leader() (bool, int) {
 	cfg.mu.Lock()
 	defer cfg.mu.Unlock()
@@ -367,9 +323,7 @@ func (cfg *config) Leader() (bool, int) {
 	return false, 0
 }
 
-//
-// partition servers into 2 groups and put current leader in minority
-//
+// Partition servers into 2 groups and put current leader in minority
 func (cfg *config) make_partition() ([]int, []int) {
 	_, l := cfg.Leader()
 	p1 := make([]int, cfg.n/2+1)
@@ -389,11 +343,10 @@ func (cfg *config) make_partition() ([]int, []int) {
 	return p1, p2
 }
 
+// Make a Once object
 var ncpu_once sync.Once
 
-//
-// make config
-//
+// Make configuration
 func make_config(t *testing.T, tag string, n int, unreliable bool, maxraftstate int) *config {
 	ncpu_once.Do(func() {
 		if runtime.NumCPU() < 2 {

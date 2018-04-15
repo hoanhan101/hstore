@@ -15,8 +15,10 @@ import (
 	"time"
 )
 
+// Enable debug
 const Debug = 0
 
+// Print debugging message
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
 		log.Printf(format, a...)
@@ -24,9 +26,7 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-//
 // Operation structure
-//
 type Op struct {
 	Type      string
 	Key       string
@@ -35,9 +35,7 @@ type Op struct {
 	RequestID int
 }
 
-//
 // RaftKV structure that holds Raft instance
-//
 type RaftKV struct {
 	mu      sync.Mutex
 	me      int
@@ -52,9 +50,7 @@ type RaftKV struct {
 	killCh chan bool
 }
 
-//
 // AppendEntry
-//
 func (kv *RaftKV) AppendEntry(entry Op) bool {
 	index, _, isLeader := kv.rf.Start(entry)
 	if !isLeader {
@@ -79,9 +75,7 @@ func (kv *RaftKV) AppendEntry(entry Op) bool {
 	return false
 }
 
-//
 // Get RPC
-//
 func (kv *RaftKV) Get(args *GetArgs, reply *GetReply) {
 	entry := Op{Type: "Get", Key: args.Key, ClientID: args.ClientID, RequestID: args.RequestID}
 
@@ -102,9 +96,7 @@ func (kv *RaftKV) Get(args *GetArgs, reply *GetReply) {
 	}
 }
 
-//
 // PutAppend RPC
-//
 func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	entry := Op{
 		Type:      args.Op,
@@ -122,18 +114,16 @@ func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	}
 }
 
-//
-// the tester calls Kill() when a RaftKV instance won't
+// Kill() is called by the tester when a RaftKV instance won't
 // be needed again. you are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
-//
 func (kv *RaftKV) Kill() {
 	kv.rf.Kill()
 	close(kv.killCh)
 }
 
-//
+// StartKVServer return a RaftKV
 // servers[] contains the ports of the set of
 // servers that will cooperate via Raft to
 // form the fault-tolerant key/value service.
@@ -145,7 +135,6 @@ func (kv *RaftKV) Kill() {
 // you don't need to snapshot.
 // StartKVServer() must return quickly, so it should start goroutines
 // for any long-running work.
-//
 func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister, maxraftstate int) *RaftKV {
 	// call gob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.
@@ -167,9 +156,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	return kv
 }
 
-//
-// run RaftKV
-//
+// Run RaftKV
 func (kv *RaftKV) run() {
 	for {
 		select {
@@ -228,9 +215,7 @@ func (kv *RaftKV) run() {
 	}
 }
 
-//
-// check duplication
-//
+// Check duplication
 func (kv *RaftKV) isDup(op *Op) bool {
 	v, ok := kv.dup[op.ClientID]
 	if ok {

@@ -8,17 +8,20 @@ package raft
 // test with the original before submitting.
 //
 
-import "labrpc"
-import "log"
-import "sync"
-import "testing"
-import "runtime"
-import crand "crypto/rand"
-import "encoding/base64"
-import "sync/atomic"
-import "time"
-import "fmt"
+import (
+	crand "crypto/rand"
+	"encoding/base64"
+	"fmt"
+	"labrpc"
+	"log"
+	"runtime"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
 
+// Generate random string
 func randstring(n int) string {
 	b := make([]byte, 2*n)
 	crand.Read(b)
@@ -26,6 +29,7 @@ func randstring(n int) string {
 	return s[0:n]
 }
 
+// Config structure
 type config struct {
 	mu        sync.Mutex
 	t         *testing.T
@@ -40,8 +44,10 @@ type config struct {
 	logs      []map[int]int // copy of each server's committed entries
 }
 
+// Define Once object
 var ncpu_once sync.Once
 
+// Make configuration
 func make_config(t *testing.T, n int, unreliable bool) *config {
 	ncpu_once.Do(func() {
 		if runtime.NumCPU() < 2 {
@@ -78,7 +84,7 @@ func make_config(t *testing.T, n int, unreliable bool) *config {
 	return cfg
 }
 
-// shut down a Raft server but save its persistent state.
+// Shut down a Raft server but save its persistent state.
 func (cfg *config) crash1(i int) {
 	cfg.disconnect(i)
 	cfg.net.DeleteServer(i) // disable client connections to the server.
@@ -109,13 +115,11 @@ func (cfg *config) crash1(i int) {
 	}
 }
 
-//
-// start or re-start a Raft.
+// Start or re-start a Raft.
 // if one already exists, "kill" it first.
 // allocate new outgoing port file names, and a new
 // state persister, to isolate previous instance of
 // this server. since we cannot really kill it.
-//
 func (cfg *config) start1(i int) {
 	cfg.crash1(i)
 
@@ -195,6 +199,7 @@ func (cfg *config) start1(i int) {
 	cfg.net.AddServer(i, srv)
 }
 
+// Clean up configuration setup
 func (cfg *config) cleanup() {
 	for i := 0; i < len(cfg.rafts); i++ {
 		if cfg.rafts[i] != nil {
@@ -204,7 +209,7 @@ func (cfg *config) cleanup() {
 	atomic.StoreInt32(&cfg.done, 1)
 }
 
-// attach server i to the net.
+// Attach server i to the net.
 func (cfg *config) connect(i int) {
 	// fmt.Printf("connect(%d)\n", i)
 
@@ -227,7 +232,7 @@ func (cfg *config) connect(i int) {
 	}
 }
 
-// detach server i from the net.
+// Detach server i from the net.
 func (cfg *config) disconnect(i int) {
 	// fmt.Printf("disconnect(%d)\n", i)
 
@@ -250,20 +255,23 @@ func (cfg *config) disconnect(i int) {
 	}
 }
 
+// Count the number of RPC messages
 func (cfg *config) rpcCount(server int) int {
 	return cfg.net.GetCount(server)
 }
 
+// Set unreliable network
 func (cfg *config) setunreliable(unrel bool) {
 	cfg.net.Reliable(!unrel)
 }
 
+// Set long ordering order
 func (cfg *config) setlongreordering(longrel bool) {
 	cfg.net.LongReordering(longrel)
 }
 
-// check that there's exactly one leader.
-// try a few times in case re-elections are needed.
+// Check that there's exactly one leader.
+// Try a few times in case re-elections are needed.
 func (cfg *config) checkOneLeader() int {
 	for iters := 0; iters < 10; iters++ {
 		time.Sleep(500 * time.Millisecond)
@@ -294,7 +302,7 @@ func (cfg *config) checkOneLeader() int {
 	return -1
 }
 
-// check that everyone agrees on the term.
+// Check that everyone agrees on the term.
 func (cfg *config) checkTerms() int {
 	term := -1
 	for i := 0; i < cfg.n; i++ {
@@ -310,7 +318,7 @@ func (cfg *config) checkTerms() int {
 	return term
 }
 
-// check that there's no leader
+// Check that there's no leader
 func (cfg *config) checkNoLeader() {
 	for i := 0; i < cfg.n; i++ {
 		if cfg.connected[i] {
@@ -322,7 +330,7 @@ func (cfg *config) checkNoLeader() {
 	}
 }
 
-// how many servers think a log entry is committed?
+// How many servers think a log entry is committed?
 func (cfg *config) nCommitted(index int) (int, interface{}) {
 	count := 0
 	cmd := -1
@@ -347,8 +355,8 @@ func (cfg *config) nCommitted(index int) (int, interface{}) {
 	return count, cmd
 }
 
-// wait for at least n servers to commit.
-// but don't wait forever.
+// Wait for at least n servers to commit.
+// But don't wait forever.
 func (cfg *config) wait(index int, n int, startTerm int) interface{} {
 	to := 10 * time.Millisecond
 	for iters := 0; iters < 30; iters++ {
@@ -378,7 +386,7 @@ func (cfg *config) wait(index int, n int, startTerm int) interface{} {
 	return cmd
 }
 
-// do a complete agreement.
+// Do a complete agreement.
 // it might choose the wrong leader initially,
 // and have to re-submit after giving up.
 // entirely gives up after about 10 seconds.

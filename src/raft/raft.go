@@ -31,20 +31,17 @@ import (
 	"time"
 )
 
-//
 // Server state
-//
 const (
 	FOLLOWER int = iota
 	CANDIDATE
 	LEADER
 )
 
-//
+// Apply Message structure
 // as each Raft peer becomes aware that successive logs entries are
 // committed, the peer should send an ApplyMsg to the service (or
 // tester) on the same server, via the applyCh passed to Make().
-//
 type ApplyMsg struct {
 	Index       int
 	Command     interface{}
@@ -52,18 +49,14 @@ type ApplyMsg struct {
 	Snapshot    []byte
 }
 
-//
 // Log Entry structure
-//
 type LogEntry struct {
 	Index   int
 	Term    int
 	Command interface{}
 }
 
-//
 // A Go object implementing a single Raft peer.
-//
 type Raft struct {
 	mu        sync.Mutex          // Lock to protect shared access to this peer's state
 	peers     []*labrpc.ClientEnd // RPC end points of all peers
@@ -97,10 +90,8 @@ type Raft struct {
 	applyCh     chan ApplyMsg
 }
 
-//
-// return currentTerm and whether this server
+// GetState() return currentTerm and whether this server
 // believes it is the leader.
-//
 func (rf *Raft) GetState() (int, bool) {
 	var term int
 	var isLeader bool
@@ -113,18 +104,14 @@ func (rf *Raft) GetState() (int, bool) {
 	return term, isLeader
 }
 
-//
-// Get Persister Size
-//
+// GetPersisterSize() return RaftStateSize in int
 func (rf *Raft) GetPersistSize() int {
 	return rf.persister.RaftStateSize()
 }
 
-//
-// save Raft's persistent state to stable storage,
+// persist() save Raft's persistent state to stable storage,
 // where it can later be retrieved after a crash and restart.
 // see paper's Figure 2 for a description of what should be persistent.
-//
 func (rf *Raft) persist() {
 	w := new(bytes.Buffer)
 	e := gob.NewEncoder(w)
@@ -135,9 +122,7 @@ func (rf *Raft) persist() {
 	rf.persister.SaveRaftState(data)
 }
 
-//
-// restore previously persisted state.
-//
+// readPersistdata restore previously persisted state.
 func (rf *Raft) readPersist(data []byte) {
 	if data == nil || len(data) < 1 {
 		return
@@ -150,9 +135,7 @@ func (rf *Raft) readPersist(data []byte) {
 	d.Decode(&rf.logs)
 }
 
-//
 // InstallSnapshot RPC argument structure
-//
 type InstallSnapshotArgs struct {
 	Term             int    // leader's term
 	LeaderID         int    // so follower can redirect clients
@@ -161,16 +144,12 @@ type InstallSnapshotArgs struct {
 	Data             []byte // raw bytes of the snapshot chunk, starting at offset
 }
 
-//
 // InstallSnapshot RPC reply structure
-//
 type InstallSnapshotReply struct {
 	Term int // currentTerm, for leader to update itself
 }
 
-//
-// truncate logs
-//
+// TruncateLogs drop unnecessary logs
 func (rf *Raft) TruncateLogs(lastIndex int, lastTerm int) {
 	ind := -1
 	first := LogEntry{Index: lastIndex, Term: lastTerm}
@@ -189,9 +168,7 @@ func (rf *Raft) TruncateLogs(lastIndex int, lastTerm int) {
 	return
 }
 
-//
-// read Snapshot
-//
+// Read Snapshot data
 func (rf *Raft) readSnapshot(data []byte) {
 	rf.readPersist(rf.persister.ReadRaftState())
 
@@ -226,9 +203,7 @@ func (rf *Raft) readSnapshot(data []byte) {
 	}()
 }
 
-//
 // InstallSnapshot RPC handler
-//
 func (rf *Raft) InstallSnapshot(args InstallSnapshotArgs, reply *InstallSnapshotReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -270,9 +245,7 @@ func (rf *Raft) InstallSnapshot(args InstallSnapshotArgs, reply *InstallSnapshot
 	}
 }
 
-//
-// send InstallSnapshot RPC to a server
-//
+// Send InstallSnapshot RPC to a server
 func (rf *Raft) sendSnapshot(server int, args InstallSnapshotArgs, reply *InstallSnapshotReply) bool {
 	ok := rf.peers[server].Call("Raft.InstallSnapshot", args, reply)
 
@@ -293,9 +266,7 @@ func (rf *Raft) sendSnapshot(server int, args InstallSnapshotArgs, reply *Instal
 	return ok
 }
 
-//
-// start Snapshot
-//
+// StartSnapshot with a list of by and index
 func (rf *Raft) StartSnapshot(snapshot []byte, index int) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -322,9 +293,7 @@ func (rf *Raft) StartSnapshot(snapshot []byte, index int) {
 	rf.persister.SaveSnapshot(data)
 }
 
-//
 // AppendEntries RPC argument structure
-//
 type AppendEntriesArgs struct {
 	Term         int        // leader's term
 	LeaderID     int        // so follower can redirect clients
@@ -334,18 +303,14 @@ type AppendEntriesArgs struct {
 	LeaderCommit int        // leader's commitIndex
 }
 
-//
 // AppendEntries RPC reply structure
-//
 type AppendEntriesReply struct {
 	Term      int  // currentTerm, for leader to update itself
 	Success   bool // true if follower contained entry matching prevLogIndex and prevLogTerm
 	NextIndex int  // index to try next
 }
 
-//
 // AppendEntries RPC handler
-//
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -429,9 +394,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	return
 }
 
-//
-// send AppendEntries RPC to a server
-//
+// Send AppendEntries RPC to a server
 func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *AppendEntriesReply) bool {
 	ok := rf.peers[server].Call("Raft.AppendEntries", &args, reply)
 
@@ -465,9 +428,7 @@ func (rf *Raft) sendAppendEntries(server int, args AppendEntriesArgs, reply *App
 	return ok
 }
 
-//
-// broadcast AppendEntries
-//
+// Broadcast AppendEntries
 func (rf *Raft) broadcastAppendEntries() {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -540,9 +501,7 @@ func (rf *Raft) broadcastAppendEntries() {
 	}
 }
 
-//
 // RequestVote RPC argument structure
-//
 type RequestVoteArgs struct {
 	Term         int // candidate's term
 	CandidateID  int // candidate requesting vote
@@ -550,17 +509,13 @@ type RequestVoteArgs struct {
 	LastLogTerm  int // term of candidate's last log entry
 }
 
-//
 // RequestVote RPC reply structure
-//
 type RequestVoteReply struct {
 	Term        int  // currentTerm, for candidate to update itself
 	VoteGranted bool // true means candidate received vote
 }
 
-//
 // RequestVote RPC handler.
-//
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
@@ -601,23 +556,17 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	return
 }
 
-//
-// get last index
-//
+// Get last index
 func (rf *Raft) getLastIndex() int {
 	return rf.logs[len(rf.logs)-1].Index
 }
 
-//
-// get last term
-//
+// Get last term
 func (rf *Raft) getLastTerm() int {
 	return rf.logs[len(rf.logs)-1].Term
 }
 
-//
-// check if term is up-to-date
-//
+// Check if term is up-to-date
 func (rf *Raft) isUptoDate(candIndex int, candTerm int) bool {
 	term, index := rf.getLastTerm(), rf.getLastIndex()
 
@@ -692,9 +641,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	return ok
 }
 
-//
-// broadcast RequestVote
-//
+// Broadcast RequestVote
 func (rf *Raft) broadcastRequestVote() {
 	var args RequestVoteArgs
 	rf.mu.Lock()
@@ -754,18 +701,16 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	return index, term, isLeader
 }
 
-//
-// the tester calls Kill() when a Raft instance won't
+// Kill is called by the tester calls when a Raft instance won't
 // be needed again. you are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
-//
 func (rf *Raft) Kill() {
 	// Your code here, if desired.
 	close(rf.killCh)
 }
 
-//
+// Make a Raft instance
 // the service or tester wants to create a Raft server. the ports
 // of all the Raft servers (including this one) are in peers[]. this
 // server's port is peers[me]. all the servers' peers[] arrays
@@ -775,7 +720,6 @@ func (rf *Raft) Kill() {
 // tester or service expects Raft to send ApplyMsg messages.
 // Make() must return quickly, so it should start goroutines
 // for any long-running work.
-//
 func Make(peers []*labrpc.ClientEnd, me int,
 	persister *Persister, applyCh chan ApplyMsg) *Raft {
 	rf := &Raft{}
@@ -810,9 +754,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	return rf
 }
 
-//
-// kick off leader election process
-//
+// Kick off Leader Election process
 func (rf *Raft) run() {
 	for {
 		rf.mu.Lock()
@@ -864,9 +806,7 @@ func (rf *Raft) run() {
 	}
 }
 
-//
-// kick off log replication process
-//
+// Kick off Log Replication process
 func (rf *Raft) commitLogs() {
 	for {
 		select {

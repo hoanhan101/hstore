@@ -50,15 +50,18 @@ package labrpc
 //   pass svc to srv.AddService()
 //
 
-import "encoding/gob"
-import "bytes"
-import "reflect"
-import "sync"
-import "log"
-import "strings"
-import "math/rand"
-import "time"
+import (
+	"bytes"
+	"encoding/gob"
+	"log"
+	"math/rand"
+	"reflect"
+	"strings"
+	"sync"
+	"time"
+)
 
+// Request Message structure
 type reqMsg struct {
 	endname  interface{} // name of sending ClientEnd
 	svcMeth  string      // e.g. "Raft.AppendEntries"
@@ -67,17 +70,19 @@ type reqMsg struct {
 	replyCh  chan replyMsg
 }
 
+// Reply Message structure
 type replyMsg struct {
 	ok    bool
 	reply []byte
 }
 
+// ClientEnd structure
 type ClientEnd struct {
 	endname interface{} // this end-point's name
 	ch      chan reqMsg // copy of Network.endCh
 }
 
-// send an RPC, wait for the reply.
+// Call() send an RPC, wait for the reply.
 // the return value indicates success; false means that
 // no reply was received from the server.
 func (e *ClientEnd) Call(svcMeth string, args interface{}, reply interface{}) bool {
@@ -107,6 +112,7 @@ func (e *ClientEnd) Call(svcMeth string, args interface{}, reply interface{}) bo
 	}
 }
 
+// Network structure
 type Network struct {
 	mu             sync.Mutex
 	reliable       bool
@@ -119,6 +125,7 @@ type Network struct {
 	endCh          chan reqMsg
 }
 
+// MakeNetwork()
 func MakeNetwork() *Network {
 	rn := &Network{}
 	rn.reliable = true
@@ -138,6 +145,7 @@ func MakeNetwork() *Network {
 	return rn
 }
 
+// Make Reliable
 func (rn *Network) Reliable(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -145,6 +153,7 @@ func (rn *Network) Reliable(yes bool) {
 	rn.reliable = yes
 }
 
+// Make LongReordering
 func (rn *Network) LongReordering(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -152,6 +161,7 @@ func (rn *Network) LongReordering(yes bool) {
 	rn.longReordering = yes
 }
 
+// Make LongDelays
 func (rn *Network) LongDelays(yes bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -159,6 +169,7 @@ func (rn *Network) LongDelays(yes bool) {
 	rn.longDelays = yes
 }
 
+// ReadEndnameInfo() reads ClientEnd name information
 func (rn *Network) ReadEndnameInfo(endname interface{}) (enabled bool,
 	servername interface{}, server *Server, reliable bool, longreordering bool,
 ) {
@@ -175,6 +186,7 @@ func (rn *Network) ReadEndnameInfo(endname interface{}) (enabled bool,
 	return
 }
 
+// Check if server is dead
 func (rn *Network) IsServerDead(endname interface{}, servername interface{}, server *Server) bool {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -185,6 +197,7 @@ func (rn *Network) IsServerDead(endname interface{}, servername interface{}, ser
 	return false
 }
 
+// Process Request
 func (rn *Network) ProcessReq(req reqMsg) {
 	enabled, servername, server, reliable, longreordering := rn.ReadEndnameInfo(req.endname)
 
@@ -266,7 +279,7 @@ func (rn *Network) ProcessReq(req reqMsg) {
 
 }
 
-// create a client end-point.
+// MakeEnd() create a client end-point.
 // start the thread that listens and delivers.
 func (rn *Network) MakeEnd(endname interface{}) *ClientEnd {
 	rn.mu.Lock()
@@ -286,6 +299,7 @@ func (rn *Network) MakeEnd(endname interface{}) *ClientEnd {
 	return e
 }
 
+// AddServer() add a server
 func (rn *Network) AddServer(servername interface{}, rs *Server) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -293,6 +307,7 @@ func (rn *Network) AddServer(servername interface{}, rs *Server) {
 	rn.servers[servername] = rs
 }
 
+// DeleteServer delete a server
 func (rn *Network) DeleteServer(servername interface{}) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -300,7 +315,7 @@ func (rn *Network) DeleteServer(servername interface{}) {
 	rn.servers[servername] = nil
 }
 
-// connect a ClientEnd to a server.
+// Connect a ClientEnd to a server.
 // a ClientEnd can only be connected once in its lifetime.
 func (rn *Network) Connect(endname interface{}, servername interface{}) {
 	rn.mu.Lock()
@@ -309,7 +324,7 @@ func (rn *Network) Connect(endname interface{}, servername interface{}) {
 	rn.connections[endname] = servername
 }
 
-// enable/disable a ClientEnd.
+// Enable/disable a ClientEnd.
 func (rn *Network) Enable(endname interface{}, enabled bool) {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -317,7 +332,7 @@ func (rn *Network) Enable(endname interface{}, enabled bool) {
 	rn.enabled[endname] = enabled
 }
 
-// get a server's count of incoming RPCs.
+// Get a server's count of incoming RPCs.
 func (rn *Network) GetCount(servername interface{}) int {
 	rn.mu.Lock()
 	defer rn.mu.Unlock()
@@ -326,29 +341,30 @@ func (rn *Network) GetCount(servername interface{}) int {
 	return svr.GetCount()
 }
 
-//
-// a server is a collection of services, all sharing
+// A Server is a collection of services, all sharing
 // the same rpc dispatcher. so that e.g. both a Raft
 // and a k/v server can listen to the same rpc endpoint.
-//
 type Server struct {
 	mu       sync.Mutex
 	services map[string]*Service
 	count    int // incoming RPCs
 }
 
+// Make a Server
 func MakeServer() *Server {
 	rs := &Server{}
 	rs.services = map[string]*Service{}
 	return rs
 }
 
+// Add a service
 func (rs *Server) AddService(svc *Service) {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 	rs.services[svc.name] = svc
 }
 
+// Dispatch message
 func (rs *Server) dispatch(req reqMsg) replyMsg {
 	rs.mu.Lock()
 
@@ -376,13 +392,14 @@ func (rs *Server) dispatch(req reqMsg) replyMsg {
 	}
 }
 
+// Get server count
 func (rs *Server) GetCount() int {
 	rs.mu.Lock()
 	defer rs.mu.Unlock()
 	return rs.count
 }
 
-// an object with methods that can be called via RPC.
+// Service is an object with methods that can be called via RPC.
 // a single server may have more than one Service.
 type Service struct {
 	name    string
@@ -422,6 +439,7 @@ func MakeService(rcvr interface{}) *Service {
 	return svc
 }
 
+// Dispatch a service
 func (svc *Service) dispatch(methname string, req reqMsg) replyMsg {
 	if method, ok := svc.methods[methname]; ok {
 		// prepare space into which to read the argument.
