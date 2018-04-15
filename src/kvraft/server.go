@@ -1,7 +1,5 @@
-//
 // adapted from ZiyueHuang's implementation:
 // https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/kvraft/server.go
-//
 
 package raftkv
 
@@ -15,10 +13,10 @@ import (
 	"time"
 )
 
-// Enable debug
+// Debug enabled or not
 const Debug = 0
 
-// Print debugging message
+// DPrintf prints debugging message
 func DPrintf(format string, a ...interface{}) (n int, err error) {
 	if Debug > 0 {
 		log.Printf(format, a...)
@@ -26,7 +24,7 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-// Operation structure
+// Op structure
 type Op struct {
 	Type      string
 	Key       string
@@ -50,7 +48,7 @@ type RaftKV struct {
 	killCh chan bool
 }
 
-// AppendEntry
+// AppendEntry appends an entry Op and returns a boolean
 func (kv *RaftKV) AppendEntry(entry Op) bool {
 	index, _, isLeader := kv.rf.Start(entry)
 	if !isLeader {
@@ -114,9 +112,9 @@ func (kv *RaftKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	}
 }
 
-// Kill() is called by the tester when a RaftKV instance won't
+// Kill is called by the tester when a RaftKV instance won't
 // be needed again. you are not required to do anything
-// in Kill(), but it might be convenient to (for example)
+// in Kill, but it might be convenient to (for example)
 // turn off debug output from this instance.
 func (kv *RaftKV) Kill() {
 	kv.rf.Kill()
@@ -220,7 +218,7 @@ func (kv *RaftKV) isDup(op *Op) bool {
 	v, ok := kv.dup[op.ClientID]
 	if ok {
 		return v >= op.RequestID
-	} else {
-		return false
 	}
+    
+    return false
 }

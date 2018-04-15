@@ -22,7 +22,7 @@ func randstring(n int) string {
 }
 
 // Randomize server handles
-func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
+func randomHandles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	sa := make([]*labrpc.ClientEnd, len(kvh))
 	copy(sa, kvh)
 	for i := range sa {
@@ -185,7 +185,7 @@ func (cfg *config) makeClient(to []int) *Clerk {
 		cfg.net.Connect(endnames[j], j)
 	}
 
-	ck := MakeClerk(random_handles(ends))
+	ck := MakeClerk(randomHandles(ends))
 	cfg.clerks[ck] = endnames
 	cfg.nextClientId++
 	cfg.ConnectClientUnlocked(ck, to)
@@ -315,8 +315,8 @@ func (cfg *config) Leader() (bool, int) {
 	defer cfg.mu.Unlock()
 
 	for i := 0; i < cfg.n; i++ {
-		_, is_leader := cfg.kvservers[i].rf.GetState()
-		if is_leader {
+		_, isLeader := cfg.kvservers[i].rf.GetState()
+		if isLeader {
 			return true, i
 		}
 	}
@@ -324,7 +324,7 @@ func (cfg *config) Leader() (bool, int) {
 }
 
 // Partition servers into 2 groups and put current leader in minority
-func (cfg *config) make_partition() ([]int, []int) {
+func (cfg *config) makePartition() ([]int, []int) {
 	_, l := cfg.Leader()
 	p1 := make([]int, cfg.n/2+1)
 	p2 := make([]int, cfg.n/2)
@@ -344,11 +344,11 @@ func (cfg *config) make_partition() ([]int, []int) {
 }
 
 // Make a Once object
-var ncpu_once sync.Once
+var ncpuOnce sync.Once
 
 // Make configuration
-func make_config(t *testing.T, tag string, n int, unreliable bool, maxraftstate int) *config {
-	ncpu_once.Do(func() {
+func makeConfig(t *testing.T, tag string, n int, unreliable bool, maxraftstate int) *config {
+	ncpuOnce.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
 		}

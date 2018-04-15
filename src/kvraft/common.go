@@ -1,15 +1,15 @@
 package raftkv
 
-// Constants
+// OK and ErrNoKey constants
 const (
 	OK       = "OK"
 	ErrNoKey = "ErrNoKey"
 )
 
-// Error string
+// Err string type
 type Err string
 
-// Put or Append structure
+// PutAppendArgs structure for Put or Append Argument
 type PutAppendArgs struct {
 	Key       string
 	Value     string
@@ -18,20 +18,20 @@ type PutAppendArgs struct {
 	RequestID int
 }
 
-// Put or Append reply structure
+// PutAppendReply structure for Put or Append Reply
 type PutAppendReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
-// Get structure
+// GetArgs structure for Get Argument
 type GetArgs struct {
 	Key       string
 	ClientID  int64
 	RequestID int
 }
 
-// Get reply structure
+// GetReply structure for Get Reply
 type GetReply struct {
 	WrongLeader bool
 	Err         Err

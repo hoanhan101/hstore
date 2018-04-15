@@ -1,7 +1,5 @@
-//
 // adapted from ZiyueHuang's implementation:
 // https://github.com/ZiyueHuang/Distributed-Systems/blob/master/src/raft/raft.go
-//
 
 package raft
 
