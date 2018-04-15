@@ -6,12 +6,18 @@ import "raft"
 import "sync"
 import "encoding/gob"
 
+//
+// Operation structure
+//
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
 }
 
+//
+// ShardKV structure
+//
 type ShardKV struct {
 	mu           sync.Mutex
 	me           int
@@ -25,10 +31,16 @@ type ShardKV struct {
 	// Your definitions here.
 }
 
+//
+// Get RPC
+//
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 }
 
+//
+// PutAppend RPC
+//
 func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 }

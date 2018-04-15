@@ -9,15 +9,23 @@ package shardkv
 // You will have to modify these definitions.
 //
 
+//
+// Constants
+//
 const (
 	OK            = "OK"
 	ErrNoKey      = "ErrNoKey"
 	ErrWrongGroup = "ErrWrongGroup"
 )
 
+//
+// Error string
+//
 type Err string
 
+//
 // Put or Append
+//
 type PutAppendArgs struct {
 	// You'll have to add definitions here.
 	Key   string
@@ -28,16 +36,25 @@ type PutAppendArgs struct {
 	// otherwise RPC will break.
 }
 
+//
+// PutAppend Reply structure
+//
 type PutAppendReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
+//
+// Get Argument structure
+//
 type GetArgs struct {
 	Key string
 	// You'll have to add definitions here.
 }
 
+//
+// Get Reply structure
+//
 type GetReply struct {
 	WrongLeader bool
 	Err         Err
