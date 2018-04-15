@@ -38,7 +38,7 @@ func doMap(
 	// Do the partition mapF's output into nReduce intermediate files.
 	// Create a slice with nReduce number of Encoders .
 	var encoders = make([]*json.Encoder, nReduce)
-	var fd *os.File = nil
+	var fd *os.File
 
 	// Open an intermediate file for each reduce task and give it an Encoder.
 	for i := 0; i < nReduce; i++ {
