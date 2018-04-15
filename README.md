@@ -70,9 +70,6 @@ Assume that user set the `GOPATH` correctly, one can follow these instructions
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
 
-> User can also run `bash run_6824.sh` to test Raft and KVRaft at the same time and skip the rest
-> of this section. More details are provided below.
-
 ### [kvraft](src/kvraft)
 
 **kvraft** is a fault-tolerant key-value storage service built on top of Raft. It is a replicated
@@ -82,10 +79,7 @@ are alive and can communicate, in spite of other failures or network partitions.
 
 One can test the program by running:
 ```
-$ cd hstore
-$ export "GOPATH=$PWD" 
-$ cd "$GOPATH/src/kvraft"
-$ go test
+$ bash run_6824.sh kvraft 
 ```
 
 Here is an example of test's output:
@@ -144,10 +138,7 @@ some of its servers experience failures.
 
 One can test the program by running:
 ```
-$ cd hstore
-$ export "GOPATH=$PWD" 
-$ cd "$GOPATH/src/raft"
-$ go test
+$ bash run_6824.sh raft 
 ```
 
 This will run all the test for Raft. If one want to test features
@@ -212,22 +203,7 @@ By MapReduce's white paper:
 
 One can test the program by running:
 ```
-$ cd hstore
-$ export "GOPATH=$PWD" 
-$ cd "$GOPATH/src/mapreduce"
-$ go test -run Sequential
-$ go test -run TestBasic
-```
-
-- `go test -run Sequential` runs the map and reduce tasks one at a time 
-- `go test -run TestBasic` runs the map and reduce tasks in parallel 
-
-To give more verbose output, set `debugEnabled = true` in
-[common.go](src/mapreduce/common.go), and add `-v` to the test command above. 
-For example:
-
-```
-$ go test -v -run TestBasic
+$ bash run_6824.sh raft 
 ```
 
 ### [word-count](src/main/wc.go)
