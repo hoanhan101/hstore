@@ -54,7 +54,7 @@ type LogEntry struct {
 	Command interface{}
 }
 
-// Raft peer structure 
+// Raft peer structure
 type Raft struct {
 	mu        sync.Mutex          // Lock to protect shared access to this peer's state
 	peers     []*labrpc.ClientEnd // RPC end points of all peers
@@ -101,7 +101,7 @@ func (rf *Raft) GetState() (int, bool) {
 	return term, isLeader
 }
 
-// GetPersisterSize returns RaftStateSize in integer
+// GetPersistSize returns RaftStateSize in integer
 func (rf *Raft) GetPersistSize() int {
 	return rf.persister.RaftStateSize()
 }

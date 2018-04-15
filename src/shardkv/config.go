@@ -23,7 +23,7 @@ func randstring(n int) string {
 }
 
 // Randomize server handles
-func random_handles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
+func randomHandles(kvh []*labrpc.ClientEnd) []*labrpc.ClientEnd {
 	sa := make([]*labrpc.ClientEnd, len(kvh))
 	copy(sa, kvh)
 	for i := range sa {
@@ -311,10 +311,10 @@ func (cfg *config) leavem(gis []int) {
 	cfg.mck.Leave(gids)
 }
 
-var ncpu_once sync.Once
+var ncpuOnce sync.Once
 
-func make_config(t *testing.T, n int, unreliable bool, maxraftstate int) *config {
-	ncpu_once.Do(func() {
+func makeConfig(t *testing.T, n int, unreliable bool, maxraftstate int) *config {
+	ncpuOnce.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
 		}

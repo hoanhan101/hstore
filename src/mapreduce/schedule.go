@@ -22,17 +22,17 @@ func schedule(
 	registerChan chan string,
 ) {
 	var ntasks int
-	var n_other int // number of inputs (for reduce) or outputs (for map)
+	var nOther int // number of inputs (for reduce) or outputs (for map)
 	switch phase {
 	case mapPhase:
 		ntasks = len(mapFiles)
-		n_other = nReduce
+		nOther = nReduce
 	case reducePhase:
 		ntasks = nReduce
-		n_other = len(mapFiles)
+		nOther = len(mapFiles)
 	}
 
-	fmt.Printf("Schedule: %v %v tasks (%d I/Os)\n", ntasks, phase, n_other)
+	fmt.Printf("Schedule: %v %v tasks (%d I/Os)\n", ntasks, phase, nOther)
 
 	// Make 10 channels of workers that receive string
 	workers := make(chan string, 10)
@@ -57,7 +57,7 @@ func schedule(
 	for i := 0; i < ntasks; i++ {
 		select {
 		case work := <-workers:
-			doTaskArgs := DoTaskArgs{jobName, mapFiles[i], phase, i, n_other}
+			doTaskArgs := DoTaskArgs{jobName, mapFiles[i], phase, i, nOther}
 			wg.Add(1)
 			var taskFunc func(string)
 

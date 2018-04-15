@@ -6,18 +6,14 @@ import "raft"
 import "sync"
 import "encoding/gob"
 
-//
-// Operation structure
-//
+// Op structure
 type Op struct {
 	// Your definitions here.
 	// Field names must start with capital letters,
 	// otherwise RPC will break.
 }
 
-//
 // ShardKV structure
-//
 type ShardKV struct {
 	mu           sync.Mutex
 	me           int
@@ -31,31 +27,26 @@ type ShardKV struct {
 	// Your definitions here.
 }
 
-//
 // Get RPC
-//
 func (kv *ShardKV) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
 }
 
-//
 // PutAppend RPC
-//
 func (kv *ShardKV) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
 }
 
-//
-// the tester calls Kill() when a ShardKV instance won't
+// Kill is called by the tester when a ShardKV instance won't
 // be needed again. you are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
-//
 func (kv *ShardKV) Kill() {
 	kv.rf.Kill()
 	// Your code here, if desired.
 }
 
+// StartServer initializes a ShardKV
 //
 // servers[] contains the ports of the servers in this group.
 //
@@ -83,7 +74,6 @@ func (kv *ShardKV) Kill() {
 //
 // StartServer() must return quickly, so it should start goroutines
 // for any long-running work.
-//
 func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister, maxraftstate int, gid int, masters []*labrpc.ClientEnd, make_end func(string) *labrpc.ClientEnd) *ShardKV {
 	// call gob.Register on structures you want
 	// Go's RPC library to marshall/unmarshall.

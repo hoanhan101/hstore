@@ -38,7 +38,7 @@ func check(t *testing.T, groups []int, ck *Clerk) {
 	}
 	min := 257
 	max := 0
-	for g, _ := range c.Groups {
+	for g := range c.Groups {
 		if counts[g] > max {
 			max = counts[g]
 		}
@@ -52,7 +52,7 @@ func check(t *testing.T, groups []int, ck *Clerk) {
 }
 
 // Check if same config
-func check_same_config(t *testing.T, c1 Config, c2 Config) {
+func checkSameConfig(t *testing.T, c1 Config, c2 Config) {
 	if c1.Num != c2.Num {
 		t.Fatalf("Num wrong")
 	}
@@ -80,7 +80,7 @@ func check_same_config(t *testing.T, c1 Config, c2 Config) {
 // Test Basic
 func TestBasic(t *testing.T) {
 	const nservers = 3
-	cfg := make_config(t, nservers, false)
+	cfg := makeConfig(t, nservers, false)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient(cfg.All())
@@ -132,7 +132,7 @@ func TestBasic(t *testing.T) {
 		cfg.ShutdownServer(s)
 		for i := 0; i < len(cfa); i++ {
 			c := ck.Query(cfa[i].Num)
-			check_same_config(t, c, cfa[i])
+			checkSameConfig(t, c, cfa[i])
 		}
 		cfg.StartServer(s)
 		cfg.ConnectAll()
@@ -252,7 +252,7 @@ func TestBasic(t *testing.T) {
 // Test multiple servers
 func TestMulti(t *testing.T) {
 	const nservers = 3
-	cfg := make_config(t, nservers, false)
+	cfg := makeConfig(t, nservers, false)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient(cfg.All())

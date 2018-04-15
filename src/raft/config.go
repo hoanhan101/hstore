@@ -45,11 +45,11 @@ type config struct {
 }
 
 // Define Once object
-var ncpu_once sync.Once
+var ncpuOnce sync.Once
 
 // Make configuration
-func make_config(t *testing.T, n int, unreliable bool) *config {
-	ncpu_once.Do(func() {
+func makeConfig(t *testing.T, n int, unreliable bool) *config {
+	ncpuOnce.Do(func() {
 		if runtime.NumCPU() < 2 {
 			fmt.Printf("warning: only one CPU, which may conceal locking bugs\n")
 		}
@@ -155,7 +155,7 @@ func (cfg *config) start1(i int) {
 	applyCh := make(chan ApplyMsg)
 	go func() {
 		for m := range applyCh {
-			err_msg := ""
+			errMsg := ""
 			if m.UseSnapshot {
 				// ignore the snapshot
 			} else if v, ok := (m.Command).(int); ok {
@@ -163,7 +163,7 @@ func (cfg *config) start1(i int) {
 				for j := 0; j < len(cfg.logs); j++ {
 					if old, oldok := cfg.logs[j][m.Index]; oldok && old != v {
 						// some server has already committed a different value for this entry!
-						err_msg = fmt.Sprintf("commit index=%v server=%v %v != server=%v %v",
+						errMsg = fmt.Sprintf("commit index=%v server=%v %v != server=%v %v",
 							m.Index, i, m.Command, j, old)
 					}
 				}
@@ -172,15 +172,15 @@ func (cfg *config) start1(i int) {
 				cfg.mu.Unlock()
 
 				if m.Index > 1 && prevok == false {
-					err_msg = fmt.Sprintf("server %v apply out of order %v", i, m.Index)
+					errMsg = fmt.Sprintf("server %v apply out of order %v", i, m.Index)
 				}
 			} else {
-				err_msg = fmt.Sprintf("committed command %v is not an int", m.Command)
+				errMsg = fmt.Sprintf("committed command %v is not an int", m.Command)
 			}
 
-			if err_msg != "" {
-				log.Fatalf("apply error: %v\n", err_msg)
-				cfg.applyErr[i] = err_msg
+			if errMsg != "" {
+				log.Fatalf("apply error: %v\n", errMsg)
+				cfg.applyErr[i] = errMsg
 				// keep reading after error so that Raft doesn't block
 				// holding locks...
 			}
@@ -322,8 +322,8 @@ func (cfg *config) checkTerms() int {
 func (cfg *config) checkNoLeader() {
 	for i := 0; i < cfg.n; i++ {
 		if cfg.connected[i] {
-			_, is_leader := cfg.rafts[i].GetState()
-			if is_leader {
+			_, isLeader := cfg.rafts[i].GetState()
+			if isLeader {
 				cfg.t.Fatalf("expected no leader, but %v claims to be leader", i)
 			}
 		}

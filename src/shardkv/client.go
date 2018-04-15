@@ -36,8 +36,8 @@ func nrand() int64 {
 
 // Clerk structure
 type Clerk struct {
-	sm       *shardmaster.Clerk
-	config   shardmaster.Config
+	sm      *shardmaster.Clerk
+	config  shardmaster.Config
 	makeEnd func(string) *labrpc.ClientEnd
 	// You will have to modify this struct.
 }

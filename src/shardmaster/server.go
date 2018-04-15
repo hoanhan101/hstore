@@ -17,7 +17,7 @@ type ShardMaster struct {
 	configs []Config // indexed by config num
 }
 
-// Operation structure
+// Op structure
 type Op struct {
 	// Your data here.
 }
@@ -42,7 +42,7 @@ func (sm *ShardMaster) Query(args *QueryArgs, reply *QueryReply) {
 	// Your code here.
 }
 
-// The tester calls Kill() when a ShardMaster instance won't
+// Kill is called by the tester calls when a ShardMaster instance won't
 // be needed again. you are not required to do anything
 // in Kill(), but it might be convenient to (for example)
 // turn off debug output from this instance.
@@ -51,12 +51,12 @@ func (sm *ShardMaster) Kill() {
 	// Your code here, if desired.
 }
 
-// Needed by shardkv tester
+// Raft is needed by shardkv tester
 func (sm *ShardMaster) Raft() *raft.Raft {
 	return sm.rf
 }
 
-// Start ShardMaster server
+// StartServer initializes a ShardMaster server
 // servers[] contains the ports of the set of
 // servers that will cooperate via Paxos to
 // form the fault-tolerant shardmaster service.

@@ -20,10 +20,10 @@ package shardmaster
 // You will need to add fields to the RPC arguments.
 //
 
-// The number of shards.
+// NShards is the number of shards.
 const NShards = 10
 
-// A configuration -- an assignment of shards to groups.
+// Config structure: a configuration -- an assignment of shards to groups.
 // Please don't change this.
 type Config struct {
 	Num    int              // config number
@@ -36,49 +36,49 @@ const (
 	OK = "OK"
 )
 
-// Error string
+// Er string type
 type Err string
 
-// Join Argument structure
+// JoinArgs structure
 type JoinArgs struct {
 	Servers map[int][]string // new GID -> servers mappings
 }
 
-// Join Reply structure
+// JoinReply structure
 type JoinReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
-// Leave Argument structure
+// LeaveArgs structure
 type LeaveArgs struct {
 	GIDs []int
 }
 
-// Leave Reply structure
+// LeaveReply structure
 type LeaveReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
-// Move Arguement structure
+// MoveArgs structure
 type MoveArgs struct {
 	Shard int
 	GID   int
 }
 
-// Move Reply structure
+// MoveReply structure
 type MoveReply struct {
 	WrongLeader bool
 	Err         Err
 }
 
-// Query Argument structure
+// QueryArgs structure
 type QueryArgs struct {
 	Num int // desired config number
 }
 
-// Query Reply structure
+// QueryReply structure
 type QueryReply struct {
 	WrongLeader bool
 	Err         Err

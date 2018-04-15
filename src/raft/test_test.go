@@ -21,7 +21,7 @@ const RaftElectionTimeout = 1000 * time.Millisecond
 
 func TestInitialElection2A(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2A): initial election ...\n")
@@ -42,7 +42,7 @@ func TestInitialElection2A(t *testing.T) {
 
 func TestReElection2A(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2A): election after network failure ...\n")
@@ -78,7 +78,7 @@ func TestReElection2A(t *testing.T) {
 
 func TestBasicAgree2B(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): basic agreement ...\n")
@@ -101,7 +101,7 @@ func TestBasicAgree2B(t *testing.T) {
 
 func TestFailAgree2B(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): agreement despite follower disconnection ...\n")
@@ -132,7 +132,7 @@ func TestFailAgree2B(t *testing.T) {
 
 func TestFailNoAgree2B(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): no agreement if too many followers disconnect ...\n")
@@ -184,7 +184,7 @@ func TestFailNoAgree2B(t *testing.T) {
 
 func TestConcurrentStarts2B(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): concurrent Start()s ...\n")
@@ -285,7 +285,7 @@ loop:
 
 func TestRejoin2B(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): rejoin of partitioned leader ...\n")
@@ -323,7 +323,7 @@ func TestRejoin2B(t *testing.T) {
 
 func TestBackup2B(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): leader backs up quickly over incorrect follower logs ...\n")
@@ -395,7 +395,7 @@ func TestBackup2B(t *testing.T) {
 
 func TestCount2B(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2B): RPC counts aren't too high ...\n")
@@ -505,7 +505,7 @@ loop:
 
 func TestPersist12C(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): basic persistence ...\n")
@@ -551,7 +551,7 @@ func TestPersist12C(t *testing.T) {
 
 func TestPersist22C(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): more persistence ...\n")
@@ -597,7 +597,7 @@ func TestPersist22C(t *testing.T) {
 
 func TestPersist32C(t *testing.T) {
 	servers := 3
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): partitioned leader and one follower crash, leader restarts ...\n")
@@ -637,7 +637,7 @@ func TestPersist32C(t *testing.T) {
 //
 func TestFigure82C(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, false)
+	cfg := makeConfig(t, servers, false)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): Figure 8 ...\n")
@@ -693,7 +693,7 @@ func TestFigure82C(t *testing.T) {
 
 func TestUnreliableAgree2C(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, true)
+	cfg := makeConfig(t, servers, true)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): unreliable agreement ...\n")
@@ -722,7 +722,7 @@ func TestUnreliableAgree2C(t *testing.T) {
 
 func TestFigure8Unreliable2C(t *testing.T) {
 	servers := 5
-	cfg := make_config(t, servers, true)
+	cfg := makeConfig(t, servers, true)
 	defer cfg.cleanup()
 
 	fmt.Printf("Test (2C): Figure 8 (unreliable) ...\n")
@@ -784,7 +784,7 @@ func internalChurn(t *testing.T, unreliable bool) {
 	}
 
 	servers := 5
-	cfg := make_config(t, servers, unreliable)
+	cfg := makeConfig(t, servers, unreliable)
 	defer cfg.cleanup()
 
 	stop := int32(0)

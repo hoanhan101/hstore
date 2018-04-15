@@ -219,6 +219,6 @@ func (kv *RaftKV) isDup(op *Op) bool {
 	if ok {
 		return v >= op.RequestID
 	}
-    
-    return false
+
+	return false
 }
