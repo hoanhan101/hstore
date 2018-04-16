@@ -38,7 +38,7 @@ Other parts will be updated as soon as it is live and ready.
   - [Testing](#testing)
   - [Example](#example)
 - [MIT's 6.824](#mits-6824)
-  - [kvraft](#kvraft)
+  - [raftkv](#raftkv)
   - [raft](#raft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
@@ -70,16 +70,16 @@ Assume that user set the `GOPATH` correctly, one can follow these instructions
 to run tests for different programs. If not, here is
 [an example](https://github.com/hoanhan101/go-playground) on how to do it.
 
-### [kvraft](src/kvraft)
+### [raftkv](src/raftkv)
 
-**kvraft** is a fault-tolerant key-value storage service built on top of Raft. It is a replicated
+**raftkv** is a fault-tolerant key-value storage service built on top of Raft. It is a replicated
 state machine, consisting of several key-value servers that coordinate their activities through
 the Raft log. It should continue to process client requests as long as a majority of the servers
 are alive and can communicate, in spite of other failures or network partitions.
 
 One can test the program by running:
 ```
-$ bash run_6824.sh kvraft 
+$ bash run_6824.sh raftkv
 ```
 
 Here is an example of test's output:
@@ -127,7 +127,7 @@ Test: persistence with several clients, failures, and snapshots, unreliable ...
 Test: persistence with several clients, failures, and snapshots, unreliable and partitions ...
   ... Passed
 PASS
-ok      kvraft  535.876s
+ok      raftkv  537.358s
 ```
 
 ### [raft](src/raft)
