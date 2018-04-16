@@ -18,14 +18,18 @@ Other parts will be updated as soon as it is live and ready.
 - [x] Implement Fault-tolerant Key-Value Service
 - [x] Build a simple client's stdin
 - [x] Add Go report card
-- [ ] Expose server/client's host and port -> RESTful APIs
-- [ ] Start a RaftKV server on by one and watch the leader election happen in real time
+- [ ] Use Go net/rpc instead of their custom labrpc for network I/O
+- [ ] Be able to start a RaftKV server one by one and watch the leader election as well as
+  log replication in real time (of course with key-value service)
 
 ### Ideas
 
-- [ ] Make CLI for server and client
-- [ ] Configurations
-- [ ] Make Persister write Raft's snapshot to disk 
+- [ ] Have a good logging strategy
+- [ ] Make sure things are configurable and scalable
+- [ ] Implement RESTful APIs to query each server's kv store
+- [ ] Build CLI for server and client (e.g.: [redis demo](http://try.redis.io/)
+- [ ] Make Persister read/write Raft's snapshot on/to disk
+- [ ] How to do service discovery? (e.g.: [consul demo](https://youtu.be/huvBEB3suoo))
 - [ ] Dockerize + automate build
 - [ ] Continuous Integration and Delivery
 - [ ] Godoc 
