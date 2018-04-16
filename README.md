@@ -141,8 +141,8 @@ One can test the program by running:
 $ bash run_6824.sh raft 
 ```
 
-This will run all the test for Raft. If one want to test features
-separately, then:
+This will run all the test for Raft. If one want to test features separately, then inside raft
+pacakge directory:
 - `go test -run 2A` checks leader election and heartbeats
 - `go test -run 2B` checks log replication
 - `go test -run 2C` checks persistent state
@@ -203,7 +203,7 @@ By MapReduce's white paper:
 
 One can test the program by running:
 ```
-$ bash run_6824.sh raft 
+$ bash run_6824.sh mapreduce
 ```
 
 ### [word-count](src/main/wc.go)

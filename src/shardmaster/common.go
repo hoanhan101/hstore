@@ -36,7 +36,7 @@ const (
 	OK = "OK"
 )
 
-// Er string type
+// Err string type
 type Err string
 
 // JoinArgs structure

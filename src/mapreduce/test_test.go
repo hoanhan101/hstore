@@ -73,7 +73,7 @@ func check(t *testing.T, files []string) {
 		text := outputScanner.Text()
 		n, err := fmt.Sscanf(lines[i], "%d", &v1)
 		if n == 1 && err == nil {
-			n, err = fmt.Sscanf(text, "%d", &v2)
+			_, err = fmt.Sscanf(text, "%d", &v2)
 		}
 		if err != nil || v1 != v2 {
 			t.Fatalf("line %d: %d != %d err %v\n", i, v1, v2, err)
