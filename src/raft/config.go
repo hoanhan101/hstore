@@ -40,8 +40,8 @@ type config struct {
 	applyErr  []string // from apply channel readers
 	connected []bool   // whether each server is on the net
 	saved     []*Persister
-    endnames  [][]string    // list of list string: the port file names each sends to
-    logs      []map[int]int // list of map[int]int: copy of each server's committed entries
+	endnames  [][]string    // list of list string: the port file names each sends to
+	logs      []map[int]int // list of map[int]int: copy of each server's committed entries
 }
 
 // Define Once object
@@ -133,10 +133,10 @@ func (cfg *config) start1(i int) {
 	// make a fresh set of ClientEnds given these name
 	ends := make([]*labrpc.ClientEnd, cfg.n)
 	for j := 0; j < cfg.n; j++ {
-        // create a client end point to talk to
+		// create a client end point to talk to
 		ends[j] = cfg.net.MakeEnd(cfg.endnames[i][j])
 
-        // connect a client to a server j
+		// connect a client to a server j
 		cfg.net.Connect(cfg.endnames[i][j], j)
 	}
 
@@ -190,21 +190,21 @@ func (cfg *config) start1(i int) {
 		}
 	}()
 
-    // Make a Raft instance
+	// Make a Raft instance
 	rf := Make(ends, i, cfg.saved[i], applyCh)
 
 	cfg.mu.Lock()
 	cfg.rafts[i] = rf
 	cfg.mu.Unlock()
 
-    // Register a Raft service
+	// Register a Raft service
 	svc := labrpc.MakeService(rf)
 
-    // Make a server and add the Raft service
+	// Make a server and add the Raft service
 	srv := labrpc.MakeServer()
 	srv.AddService(svc)
-    
-    // Add that server to the network
+
+	// Add that server to the network
 	cfg.net.AddServer(i, srv)
 }
 
