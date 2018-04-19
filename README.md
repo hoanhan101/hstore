@@ -27,7 +27,7 @@ Other parts will be updated as soon as it is live and ready.
 - [ ] Have a good logging strategy
 - [ ] Make sure things are configurable and scalable
 - [ ] Implement RESTful APIs to query each server's kv store
-- [ ] Build CLI for server and client (e.g.: [redis demo](http://try.redis.io/)
+- [ ] Build CLI for server and client (e.g.: [redis demo](http://try.redis.io/))
 - [ ] Make Persister read/write Raft's snapshot on/to disk
 - [ ] How to do service discovery? (e.g.: [consul demo](https://youtu.be/huvBEB3suoo))
 - [ ] Dockerize + automate build

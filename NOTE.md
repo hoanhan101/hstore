@@ -5,7 +5,7 @@
 **Problems:**
 
 - net/prc doesn't have a Network object so cannot add/remove server
-- labrpc doesn't have option for network I/O, specially Client.Dial() and Server.ServeConn()
+- labrpc doesn't have option for network I/O, especially Client.Dial() and Server.ServeConn()
 
 **Solutions:**
 

@@ -169,32 +169,36 @@ My timeline is also largely dependent on their course's schedule.
 - Approach:
   - [Lab 3: Fault-tolerant Key/Value
     Service](http://nil.csail.mit.edu/6.824/2017/labs/lab-kvraft.html)
-  - [Lab 4: Sharded Key/Value
-    Service](http://nil.csail.mit.edu/6.824/2017/labs/lab-shard.html)
 - Deliverables:
-  - A robust key-value store that "shards
-
-> For now, I am leaving the rest of the weeks' tasks as *TODO*. Will update
-> when I have a better understanding of the system.
+  - A robust key-value store library that pass all lab's tests
 
 ### Week 9-10
 - Task:
-  - Implement a service discovery feature
+  - Build a simple client's stdin
+  - Use Go net/rpc instead of their custom labrpc for network I/O
 - Approach:
-  - TODO
+  - Either modify labrpc or using Go net/rpc
 - Deliverables:
-  - TODO
+  - A workable client's program
+  - A workable networking RaftKV program
 
 ### Week 11-12
 - Task:
+  - Implement RESTful APIs to query each server's kv store
+  - Build CLI for server and client
 - Approach:
+  - If the networking work as expected, it's pretty straightforward from here
 - Deliverables:
+  - A workable networking RaftKV program
 
 ### Week 13-14
 - Task:
+  - Automate build
+  - Add Docker and CI
 - Approach:
+  - See how other projects do it and model after them
 - Deliverables:
-
+  - Everything is setup correctly
 
 ## Final Product
 
