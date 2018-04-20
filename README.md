@@ -83,8 +83,15 @@ are alive and can communicate, in spite of other failures or network partitions.
 
 One can test the program by running:
 ```
-$ bash run_6824.sh raftkv
+$ ./test_6824.sh raftkv
 ```
+
+In order to execute a specific test in a package, then:
+```
+$ ./test_6824.sh raftkv TestConcurrent
+```
+
+> More informations about the test script can be found at [test_6824](test_6824).
 
 Here is an example of test's output:
 ```
@@ -142,7 +149,7 @@ some of its servers experience failures.
 
 One can test the program by running:
 ```
-$ bash run_6824.sh raft 
+$ ./test_6824.sh raft 
 ```
 
 This will run all the test for Raft. If one want to test features separately, then inside raft
@@ -207,7 +214,7 @@ By MapReduce's white paper:
 
 One can test the program by running:
 ```
-$ bash run_6824.sh mapreduce
+$ ./test_6824.sh mapreduce
 ```
 
 ### [word-count](src/main/wc.go)
@@ -220,7 +227,7 @@ One can test the program by running:
 $ cd hstore
 $ export "GOPATH=$PWD"
 $ cd "$GOPATH/src/main"
-$ bash ./test-wc.sh
+$ ./test-wc.sh
 ```
 
 This will do the test and clean up all intermediate files afterward.
