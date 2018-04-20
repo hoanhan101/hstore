@@ -15,18 +15,33 @@ Other parts will be updated as soon as it is live and ready.
 ### Next tasks
 
 - [x] Implement Raft Consensus Algorithm
+  - [x] Pass all lab tests
+  - [x] Adapt a clear and understandable structure
+  - [x] Follow the paper closely and comment heavily on the code
 - [x] Implement Fault-tolerant Key-Value Service
+  - [x] Pass all lab tests
 - [x] Build a simple client's stdin
+  - [x] Be able to specify number of servers to boot up
+  - [x] Implement GET, PUT, APPEND
 - [x] Add Go report card
-- [ ] Use Go net/rpc instead of their custom labrpc for network I/O
-- [ ] Be able to start a RaftKV server one by one and watch the leader election as well as
-  log replication in real time (of course with key-value service)
+  - [x] Clean up code and fix Golint, aim to have A+
+- [ ] Enable network I/O so every server in the quorum have a public host and port, instead of just
+  communicating though Go routines
+  - Problem:
+    - net/prc doesn't have a Network object so cannot add/remove server
+    - labrpc doesn't have option for network I/O (e.g.: Client.Dial and Server.ServeConn)
+  - Solution (either one of these):
+    - [ ] Adapt laprpc to net/rpc, add more functions and rewrite the package to use websocket
+    - [ ] Use net/rpc and adapt labrpc library's functionalities
+    - [ ] Keep the labrpc code, wrap it with Go net.
 
 ### Ideas
 
-- [ ] Have a good logging strategy
-- [ ] Make sure things are configurable and scalable
+- [ ] Be able to start a RaftKV server one by one and watch the leader election as well as
+  log replication in real time (of course with key-value service)
 - [ ] Implement RESTful APIs to query each server's kv store
+- [ ] Have a good logging strategy
+- [ ] Make sure things are configurable
 - [ ] Build CLI for server and client (e.g.: [redis demo](http://try.redis.io/))
 - [ ] Make Persister read/write Raft's snapshot on/to disk
 - [ ] How to do service discovery? (e.g.: [consul demo](https://youtu.be/huvBEB3suoo))
