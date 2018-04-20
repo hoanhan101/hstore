@@ -86,12 +86,12 @@ One can test the program by running:
 $ ./test_6824.sh raftkv
 ```
 
-In order to execute a specific test in a package, then:
+In order to execute a specific test in a package:
 ```
 $ ./test_6824.sh raftkv TestConcurrent
 ```
 
-> More informations about the test script can be found at [test_6824](test_6824).
+> More informations about the test script can be found at [test_6824](test_6824.sh).
 
 Here is an example of test's output:
 ```
