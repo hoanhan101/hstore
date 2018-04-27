@@ -12,7 +12,7 @@ of Raft, a replicated state machine protocol.
 It is still a work in progress. Here is the initial project's [proposal](PROPOSAL.md).
 Other parts will be updated as soon as it is live and ready.
 
-### Completed
+### Tasks
 
 - [x] Implement Raft Consensus Algorithm
   - [x] Pass all lab tests
@@ -30,20 +30,20 @@ Other parts will be updated as soon as it is live and ready.
 
 - [ ] Enable network I/O so every server in the quorum have a public host and port, instead of just
   communicating though Go routines
-  - Problem:
+  - Details:
     - net/prc doesn't have a Network object so cannot add/remove server
     - labrpc doesn't have option for network I/O (e.g.: Client.Dial and Server.ServeConn)
-  - Solution (either one of these):
+  - Proposed solutions (either one of these):
     - [ ] Adapt laprpc to net/rpc, add more functions and rewrite the package to use websocket
     - [ ] Use net/rpc and adapt labrpc library's functionalities
     - [ ] Keep the labrpc code, wrap it with Go net.
 - [ ] Be able to start a RaftKV server one by one and watch the leader election as well as
   log replication in real time (of course with key-value service)
 - [ ] Implement RESTful APIs to query each server's kv store
-- [ ] Have a good logging strategy
+- [ ] Implement logging
 - [ ] Make sure things are configurable
 - [ ] Build CLI for server and client (e.g.: [redis demo](http://try.redis.io/))
-- [ ] Make Persister read/write Raft's snapshot on/to disk
+- [ ] Make Persister read/write Raft's snapshot on/to disk (instead of holding on memory)
 - [ ] How to do service discovery? (e.g.: [consul demo](https://youtu.be/huvBEB3suoo))
 - [ ] Dockerize + automate build
 - [ ] Continuous Integration and Delivery
@@ -52,7 +52,13 @@ Other parts will be updated as soon as it is live and ready.
 
 ### Issues
 
-- [ ] raftkv tests fail on Docker Ubuntu (even though they pass on Mac)
+- [ ] raftkv tests fail on Docker Ubuntu
+  - Details:
+    - All tests pass on Mac, but not on Docker on Mac
+    - Mac OS Sierra 10.12.6, Docker version 17.06.1-ce, build 874a737, golang 1.10.1
+    - Either something wrong with networking inside container or the labrpc package
+  - Proposed solutions:
+    - [ ] Test on real Ubuntu machine and go from there
 
 ## Table of Contents
 
