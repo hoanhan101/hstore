@@ -12,7 +12,7 @@ of Raft, a replicated state machine protocol.
 It is still a work in progress. Here is the initial project's [proposal](PROPOSAL.md).
 Other parts will be updated as soon as it is live and ready.
 
-### Next tasks
+### Completed
 
 - [x] Implement Raft Consensus Algorithm
   - [x] Pass all lab tests
@@ -25,6 +25,9 @@ Other parts will be updated as soon as it is live and ready.
   - [x] Implement GET, PUT, APPEND
 - [x] Add Go report card
   - [x] Clean up code and fix Golint, aim to have A+
+
+### Ideas
+
 - [ ] Enable network I/O so every server in the quorum have a public host and port, instead of just
   communicating though Go routines
   - Problem:
@@ -34,9 +37,6 @@ Other parts will be updated as soon as it is live and ready.
     - [ ] Adapt laprpc to net/rpc, add more functions and rewrite the package to use websocket
     - [ ] Use net/rpc and adapt labrpc library's functionalities
     - [ ] Keep the labrpc code, wrap it with Go net.
-
-### Ideas
-
 - [ ] Be able to start a RaftKV server one by one and watch the leader election as well as
   log replication in real time (of course with key-value service)
 - [ ] Implement RESTful APIs to query each server's kv store
@@ -50,7 +50,12 @@ Other parts will be updated as soon as it is live and ready.
 - [ ] Godoc 
 - [ ] Code coverage 
 
+### Issues
+
+- [ ] raftkv tests fail on Docker Ubuntu (even though they pass on Mac)
+
 ## Table of Contents
+
 - [Getting Started](#getting-started)
   - [Installing](#installing)
   - [Running](#running)
@@ -77,7 +82,7 @@ git clone https://github.com/hoanhan101/hstore.git && cd hstore
 
 ### Testing
 
-> TODO
+> Refer to MIT's 6.824 raftkv test below
 
 ### Example
 
