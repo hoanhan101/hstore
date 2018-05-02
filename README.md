@@ -121,7 +121,7 @@ $ ./test_6824.sh raftkv TestConcurrent
 
 Here is an example of test's output:
 
-![Test raftkv](test_raftkv.png)
+![raftkv's test output](img/test_raftkv.png)
 
 ### [raft](src/raft)
 
@@ -147,7 +147,7 @@ time go test
 
 Here is an example of test's output:
 
-![Test raft](test_raft.png)
+![raft's test output](img/test_raft.png)
 
 ### [mapreduce](src/mapreduce)
 
