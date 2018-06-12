@@ -72,7 +72,7 @@ Other parts will be updated as soon as it is live and ready.
   - [raft](#raft)
   - [mapreduce](#mapreduce)
   - [word-count](#word-count)
-- [Reference](#reference)
+- [References](#references)
 
 ## Getting Started
 
@@ -177,7 +177,7 @@ $ ./test-wc.sh
 
 This will do the test and clean up all intermediate files afterward.
 
-## Reference
+## References
 
 - [6.824: Distributed Systems Spring 2017](http://nil.csail.mit.edu/6.824/2017/)
 - [ZiyueHuang's raft implementation](https://github.com/ZiyueHuang/Distributed-Systems)
